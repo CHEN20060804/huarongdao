@@ -9,13 +9,22 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    gamepage.cpp \
     main.cpp \
+    mainbutton.cpp \
+    settingbutton.cpp \
     widget.cpp
 
 HEADERS += \
+    gamepage.h \
+    mainbutton.h \
+    settingbutton.h \
     widget.h
 
 FORMS += \
+    gamepage.ui \
+    mainbutton.ui \
+    settingbutton.ui \
     widget.ui
 
 # Default rules for deployment.
