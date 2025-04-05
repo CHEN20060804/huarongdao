@@ -13,201 +13,64 @@
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QStackedWidget" name="stackedWidget">
+  <widget class="MainStackedWidget" name="stackedWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>821</width>
-     <height>581</height>
+     <x>0</x>
+     <y>0</y>
+     <width>841</width>
+     <height>571</height>
     </rect>
    </property>
-   <property name="currentIndex">
-    <number>0</number>
+   <property name="focusPolicy">
+    <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
-   <widget class="QWidget" name="page">
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>90</y>
-       <width>171</width>
-       <height>401</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="MainButton" name="btnLevel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>闯关模式</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="MainButton" name="btnCustom">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>自定义模式</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="MainButton" name="btnRank">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>排行榜</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="MainButton" name="bntExit">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>160</width>
-          <height>60</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>退出游戏</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="SettingButton" name="pushButton">
-     <property name="geometry">
-      <rect>
-       <x>720</x>
-       <y>30</y>
-       <width>51</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="page_2">
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>70</y>
-       <width>162</width>
-       <height>421</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2"/>
-    </widget>
-    <widget class="MainButton" name="btnReturn">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>80</width>
-       <height>40</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>80</width>
-       <height>40</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>40</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>返回</string>
-     </property>
-    </widget>
-   </widget>
+   <property name="currentIndex">
+    <number>4</number>
+   </property>
+   <widget class="StartPage" name="startpage"/>
+   <widget class="LevelPage" name="levelpage"/>
+   <widget class="CustomPage" name="custompage"/>
+   <widget class="RankPage" name="rankpage"/>
+   <widget class="GamePageOne" name="gamepageone"/>
   </widget>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>MainButton</class>
-   <extends>QPushButton</extends>
-   <header location="global">mainbutton.h</header>
+   <class>MainStackedWidget</class>
+   <extends>QStackedWidget</extends>
+   <header location="global">mainstackedwidget.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SettingButton</class>
-   <extends>QPushButton</extends>
-   <header>settingbutton.h</header>
+   <class>LevelPage</class>
+   <extends>QWidget</extends>
+   <header location="global">levelpage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StartPage</class>
+   <extends>QWidget</extends>
+   <header location="global">startpage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CustomPage</class>
+   <extends>QWidget</extends>
+   <header location="global">custompage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RankPage</class>
+   <extends>QWidget</extends>
+   <header location="global">rankpage.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GamePageOne</class>
+   <extends>QWidget</extends>
+   <header location="global">gamepageone.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

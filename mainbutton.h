@@ -1,38 +1,47 @@
-#ifndef MODERNBUTTON_H
-#define MODERNBUTTON_H
+#ifndef MAINBUTTON_H
+#define MAINBUTTON_H
 
 #include <QPushButton>
-#include <QMouseEvent>
+#include <QGraphicsDropShadowEffect>
 #include <QPropertyAnimation>
-class MainButton : public QPushButton
-{
+#include <QTimer>
+
+class MainButton : public QPushButton {
     Q_OBJECT
+    Q_PROPERTY(double glowStrength READ glowStrength WRITE setGlowStrength)
+    Q_PROPERTY(double scaleFactor READ scaleFactor WRITE setScaleFactor)
 
 public:
-    explicit MainButton(QWidget *parent = nullptr);
+    explicit MainButton(QWidget *parent = nullptr, int w = 160, int h = 60);
     ~MainButton();
 
-    void paintEvent(QPaintEvent *event) override;      // 绘制按钮
-    void enterEvent(QEnterEvent *event) override;           // 鼠标进入按钮时
-    void leaveEvent(QEvent *event) override;           // 鼠标离开按钮时
-    void mousePressEvent(QMouseEvent *event) override; // 按钮按下时
-    void mouseReleaseEvent(QMouseEvent *event) override; // 按钮释放时
-    void setScaleFactor(qreal factor);
-    qreal getScaleFactor() const;
-    void updateGlowEffect();
-    void setYOffset(int offset);
-    int getYOffset() const;
+    double glowStrength() const;
+    void setGlowStrength(double strength);
 
+    double scaleFactor() const;
+    void setScaleFactor(double factor);
+    void setwh(int i, int j);
 protected:
-    bool m_isPressed;
-    bool m_isHovered;
-    int glowAlpha;          // 发光的透明度
-    bool glowIncreasing;    // 控制发光透明度是增加还是减少
-    qreal scaleFactor;                // 按钮的缩放因子
-    int yOffset;                      // 按钮的 Y 轴偏移（用于跳跃）
-    QPropertyAnimation *scaleAnimation;  // 控制按钮放大缩小的动画
-    QPropertyAnimation *jumpAnimation;   // 控制按钮跳跃的动画
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
+
+private:
+    QGraphicsDropShadowEffect *shadowEffect;  // 外发光
+    QPropertyAnimation *hoverGlowAnim;  // 鼠标悬停时的光效动画
+    QPropertyAnimation *hoverScaleAnim; // 悬停时放大效果
+    QPropertyAnimation *breathingAnim;  // 呼吸灯效果
+    QTimer *breathingTimer;
+
+    double m_glowStrength;
+    double m_scaleFactor;
+    int m_h;
+    int m_w;
+    QPixmap m_cachedIcon;
+
+    void setupUI();
+    void startBreathingEffect();
 };
 
-#endif
+#endif // MAINBUTTON_H

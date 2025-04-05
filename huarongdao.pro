@@ -1,4 +1,5 @@
 QT       += core gui
+QT += core gui multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -9,25 +10,38 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    gamepage.cpp \
+    custompage.cpp \
+    gamepageone.cpp \
+    levelpage.cpp \
     main.cpp \
     mainbutton.cpp \
-    settingbutton.cpp \
+    mainstackedwidget.cpp \
+    rankpage.cpp \
+    startpage.cpp \
     widget.cpp
 
 HEADERS += \
-    gamepage.h \
+    custompage.h \
+    gamepageone.h \
+    levelpage.h \
     mainbutton.h \
-    settingbutton.h \
+    mainstackedwidget.h \
+    rankpage.h \
+    startpage.h \
     widget.h
 
 FORMS += \
-    gamepage.ui \
-    mainbutton.ui \
-    settingbutton.ui \
+    custompage.ui \
+    gamepageone.ui \
+    levelpage.ui \
+    rankpage.ui \
+    startpage.ui \
     widget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    res.qrc
