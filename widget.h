@@ -4,6 +4,8 @@
 #include <QPoint>
 #include <QWidget>
 #include <QTimer>
+#include <QDialog>
+#include "settingpage.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -36,6 +38,9 @@ protected:
 private slots:
     void updateTrail(); // 更新拖尾和水波的定时器槽函数
     void changePage(int i);
+    void popSettingDialog();//弹出设置对话框
+    void saveSetting();
+
 private:
     Ui::Widget *ui;
     QTimer *timer; // 定时器，用于定期更新动画
@@ -43,5 +48,9 @@ private:
     QList<RippleEffect> rippleEffects; // 存储水波纹效果
     int maxTrailLength = 80; // 限制拖尾最大长度，防止过长
     int rippleMaxSize = 100; // 增加水波纹的最大扩散范围
+    SettingPage* setting;
+    QDialog* settingDialog;
+
+    void fadeOutAndClose(QDialog* dlg) const;
 };
 #endif // WIDGET_H

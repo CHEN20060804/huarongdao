@@ -43,6 +43,10 @@ StartPage::StartPage(QWidget *parent)
         emit closeBtnClicked();
     });
 
+    connect(settingBtn, &QPushButton::clicked, [=](){
+        emit settingBtnClicked();
+    });
+
 }
 
 

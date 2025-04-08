@@ -17,7 +17,7 @@ public:
 signals:
     void mainBtnClicked(int i);
     void closeBtnClicked();
-
+    void settingBtnClicked();
 private:
     Ui::StartPage *ui;
 };

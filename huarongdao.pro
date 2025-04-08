@@ -17,6 +17,7 @@ SOURCES += \
     mainbutton.cpp \
     mainstackedwidget.cpp \
     rankpage.cpp \
+    settingpage.cpp \
     startpage.cpp \
     widget.cpp
 
@@ -27,6 +28,7 @@ HEADERS += \
     mainbutton.h \
     mainstackedwidget.h \
     rankpage.h \
+    settingpage.h \
     startpage.h \
     widget.h
 
@@ -35,6 +37,7 @@ FORMS += \
     gamepageone.ui \
     levelpage.ui \
     rankpage.ui \
+    settingpage.ui \
     startpage.ui \
     widget.ui
 

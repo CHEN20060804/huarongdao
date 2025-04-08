@@ -8,6 +8,10 @@
 #include <QPainterPath>
 #include <QtMath>
 #include <QDebug>
+#include <QVBoxLayout>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+
 Widget::Widget(QWidget *parent)
     :QWidget(parent),
     ui(new Ui::Widget)
@@ -33,10 +37,9 @@ Widget::Widget(QWidget *parent)
 
     connect(ui->gamepageone, &GamePageOne::mainBtnClicked, this, &Widget::changePage);
 
-    connect(ui->startpage, &StartPage::closeBtnClicked,this, [=](){
-        close();
-    });
+    connect(ui->startpage, &StartPage::closeBtnClicked,this, [=](){close();});
 
+    connect(ui->startpage, &StartPage::settingBtnClicked, this, &Widget::popSettingDialog);
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -105,9 +108,58 @@ void Widget::updateTrail() {
     update();
 }
 
+void Widget::popSettingDialog()
+{
+    setting = new SettingPage(this);  // 创建SettingPage
+
+    settingDialog = new QDialog(this, Qt::FramelessWindowHint);
+    settingDialog->setAttribute(Qt::WA_TranslucentBackground, true);
+    settingDialog->setFixedSize(600, 400);
+    settingDialog->setAttribute(Qt::WA_DeleteOnClose);
+    // 创建QVBoxLayout，并设置为QDialog的布局
+    QVBoxLayout* layout = new QVBoxLayout(settingDialog);  // 让layout的父对象是settingDialog
+    layout->addWidget(setting);  // 把SettingPage加到layout里
+    layout->setContentsMargins(0, 0, 0, 0); // 去除内边距
+    layout->setSpacing(0); // 去除控件之间的间距
+
+    connect(setting, &SettingPage::saveBtnClicked, this, &Widget::saveSetting);
+    connect(setting, &SettingPage::cancelBtnClicked, this, [=]() {
+        fadeOutAndClose(settingDialog);
+        qDebug() << "Cancel button clicked";
+        setting = nullptr;
+    });
+
+    settingDialog->exec();
+}
+
 void Widget::changePage(int i)
 {
     ui->stackedWidget->setCurrentIndex(i);
+}
+
+void Widget::saveSetting()
+{
+    fadeOutAndClose(settingDialog);
+}
+
+void Widget::fadeOutAndClose(QDialog* dlg) const {
+    auto* effect = qobject_cast<QGraphicsOpacityEffect*>(dlg->graphicsEffect());
+    if (!effect) {
+        effect = new QGraphicsOpacityEffect(dlg);
+        dlg->setGraphicsEffect(effect);
+    }
+
+    auto* anim = new QPropertyAnimation(effect, "opacity");
+    anim->setDuration(500);
+    anim->setStartValue(effect->opacity());
+    anim->setEndValue(0.0);
+
+    connect(anim, &QPropertyAnimation::finished, [dlg]() {
+        dlg->close();
+        dlg->deleteLater();
+    });
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 Widget::~Widget()
