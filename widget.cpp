@@ -1,6 +1,5 @@
 #include "widget.h"
 #include "ui_widget.h"
-#include <QPixmap>
 #include <QPainter>
 #include <QMouseEvent>
 #include <QBrush>
@@ -21,6 +20,9 @@ Widget::Widget(QWidget *parent)
     setFixedSize(850, 600);
     setMouseTracking(true);
 
+    bgPixmap = QPixmap(":/video/res/bk7.jpg");  // widget.h 里定义 QPixmap bgPixmap;
+
+
     ui->stackedWidget->setCurrentIndex(0);
     // 设置定时器，每 16ms 更新一次画面，使动画更流畅
     timer = new QTimer(this);
@@ -30,6 +32,8 @@ Widget::Widget(QWidget *parent)
     connect(ui->startpage, &StartPage::mainBtnClicked, this, &Widget::changePage);
 
     connect(ui->levelpage, &LevelPage::mainBtnClicked, this, &Widget::changePage);
+
+    connect(ui->levelpage, &LevelPage::levelSelected, this, &Widget::initGame);
 
     connect(ui->custompage, &CustomPage::mainBtnClicked, this, &Widget::changePage);
 
@@ -44,15 +48,12 @@ Widget::Widget(QWidget *parent)
 
 void Widget::paintEvent(QPaintEvent *event)
 {
-
-    // 创建 QPixmap 对象，加载图片
-    QPixmap pixmap(":/video/res/bk1.jpg");
     // 创建 QPainter 对象，准备在窗口上绘制
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);  // 启用抗锯齿
     painter.setRenderHint(QPainter::SmoothPixmapTransform);  // 启用平滑的图像缩放
-    // 将 QPixmap 绘制到窗口的指定位置（例如左上角）
-    painter.drawPixmap(0, 0, width(), height(), pixmap);
+
+    painter.drawPixmap(0, 0, width(), height(), bgPixmap);
 
     // 绘制渐变流畅的拖尾效果
     for (int i = 0; i < trailPoints.size(); ++i) {
@@ -74,7 +75,6 @@ void Widget::paintEvent(QPaintEvent *event)
         painter.setBrush(Qt::NoBrush);
         painter.drawEllipse(wave.center, wave.radius, wave.radius);
     }
-
 }
 
 void Widget::mouseMoveEvent(QMouseEvent *event) {
@@ -125,43 +125,50 @@ void Widget::popSettingDialog()
     connect(setting, &SettingPage::saveBtnClicked, this, &Widget::saveSetting);
     connect(setting, &SettingPage::cancelBtnClicked, this, [=]() {
         fadeOutAndClose(settingDialog);
-        qDebug() << "Cancel button clicked";
         setting = nullptr;
     });
+
+    // 添加淡入动画
+    settingDialog->setWindowOpacity(0.0);
+    QPropertyAnimation* fadeInAnim = new QPropertyAnimation(settingDialog, "windowOpacity");
+    fadeInAnim->setDuration(500);
+    fadeInAnim->setStartValue(0.0);
+    fadeInAnim->setEndValue(1.0);
+    fadeInAnim->start(QAbstractAnimation::DeleteWhenStopped);
 
     settingDialog->exec();
 }
 
-void Widget::changePage(int i)
+void Widget::changePage(int i) const
 {
-    ui->stackedWidget->setCurrentIndex(i);
+    ui->stackedWidget->fadeToIndex(i);
 }
 
-void Widget::saveSetting()
+void Widget::saveSetting() const
 {
     fadeOutAndClose(settingDialog);
 }
 
 void Widget::fadeOutAndClose(QDialog* dlg) const {
-    auto* effect = qobject_cast<QGraphicsOpacityEffect*>(dlg->graphicsEffect());
-    if (!effect) {
-        effect = new QGraphicsOpacityEffect(dlg);
-        dlg->setGraphicsEffect(effect);
-    }
+    QPropertyAnimation* fadeOutAnim = new QPropertyAnimation(dlg, "windowOpacity");
+    fadeOutAnim->setDuration(500);
+    fadeOutAnim->setStartValue(dlg->windowOpacity());  // 当前透明度
+    fadeOutAnim->setEndValue(0.0);
 
-    auto* anim = new QPropertyAnimation(effect, "opacity");
-    anim->setDuration(500);
-    anim->setStartValue(effect->opacity());
-    anim->setEndValue(0.0);
-
-    connect(anim, &QPropertyAnimation::finished, [dlg]() {
-        dlg->close();
-        dlg->deleteLater();
+    connect(fadeOutAnim, &QPropertyAnimation::finished, [dlg]() {
+        dlg->close();         // 关闭对话框
+        dlg->deleteLater();   // 自动销毁
     });
 
-    anim->start(QAbstractAnimation::DeleteWhenStopped);
+    fadeOutAnim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
+void Widget::initGame(int page, int index)
+{
+    changePage(page);
+    Level level = ui->levelpage->callLevelManger().getLevel(index);
+    ui->gamepageone->loadLevel(level);
+}
 Widget::~Widget()
 {
     delete ui;

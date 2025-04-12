@@ -11,7 +11,10 @@ CONFIG += c++17
 
 SOURCES += \
     custompage.cpp \
+    gamelogicone.cpp \
     gamepageone.cpp \
+    leveldata.cpp \
+    levelmaneger.cpp \
     levelpage.cpp \
     main.cpp \
     mainbutton.cpp \
@@ -23,7 +26,10 @@ SOURCES += \
 
 HEADERS += \
     custompage.h \
+    gamelogicone.h \
     gamepageone.h \
+    leveldata.h \
+    levelmaneger.h \
     levelpage.h \
     mainbutton.h \
     mainstackedwidget.h \

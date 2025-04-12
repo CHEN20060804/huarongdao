@@ -7,16 +7,22 @@
 #include <QPainterPath>
 #include <QtMath>
 #include <QDebug>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+#include <QLabel>
+
 MainStackedWidget::MainStackedWidget(QWidget *parent)
     : QStackedWidget{parent}
 {
-   timer = new QTimer(this);
-   connect(timer, &QTimer::timeout, this, &MainStackedWidget::updateTrail);
-   timer->start(16);
-   qApp->installEventFilter(this);
+    setFixedSize(850, 600);
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &MainStackedWidget::updateTrail);
+    timer->start(16);
+    qApp->installEventFilter(this);
 }
 void MainStackedWidget::paintEvent(QPaintEvent *event)
 {
+    QStackedWidget::paintEvent(event);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);  // 启用抗锯齿
     painter.setRenderHint(QPainter::SmoothPixmapTransform);  // 启用平滑的图像缩放
@@ -99,4 +105,41 @@ bool MainStackedWidget::eventFilter(QObject *obj, QEvent *event) {
     return QStackedWidget::eventFilter(obj, event);
 }
 
+void MainStackedWidget::fadeToIndex(int newIndex, int duration) {
+    int oldIndex = currentIndex();
+    if (oldIndex == newIndex) return;
+
+    QWidget *oldPage = widget(oldIndex);
+    QWidget *newPage = widget(newIndex);
+
+    // 1. 将旧页面渲染到 pixmap
+    QPixmap snapshot(oldPage->size());
+    oldPage->render(&snapshot);
+
+    // 2. 切换到新页面
+    setCurrentIndex(newIndex);
+
+    // 3. 在新页面之上创建一个 QLabel 作为遮罩
+    QLabel *overlay = new QLabel(this);
+    overlay->setPixmap(snapshot);
+    overlay->setFixedSize(snapshot.size());
+    overlay->move(0, 0);
+    overlay->show();
+
+    // 4. 给 overlay 添加透明度效果
+    auto *effect = new QGraphicsOpacityEffect(overlay);
+    overlay->setGraphicsEffect(effect);
+
+    // 5. 创建淡出动画
+    auto *anim = new QPropertyAnimation(effect, "opacity", this);
+    anim->setDuration(duration);
+    anim->setStartValue(1.0);
+    anim->setEndValue(0.0);
+
+    connect(anim, &QPropertyAnimation::finished, [overlay]() {
+        overlay->deleteLater();  // 动画结束后移除遮罩
+    });
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
 

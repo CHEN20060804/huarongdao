@@ -8,10 +8,12 @@ RankPage::RankPage(QWidget *parent)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
+
     MainButton* backBtn = new MainButton(this, 50, 50);
     backBtn->move(50, 30);
     backBtn->setIcon(QIcon(":/video/res/back.png"));
     backBtn->setIconSize(QSize(30, 30));
+
     connect(backBtn, &QPushButton::clicked, [=](){
         emit mainBtnClicked(0);
     });

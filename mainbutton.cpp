@@ -35,16 +35,19 @@ MainButton::MainButton(QWidget *parent, int w, int h)
     // 设置样式表
     setStyleSheet(R"(
     QPushButton {
-        background-color: #0F1C3F;  /* 深蓝色 */
+        background-color: #292759;
         font-family: "楷体";
         color: white;
         border-radius: 12px;
         padding: 10px 20px;
-        border: 2px solid #183A5E;
+        border: 2px solid #15707C;
         text-align: center;
-        font-weight: bold; /* 加粗 */
+        font-weight: bold;
     }
 )");
+
+
+
 }
 
 
@@ -70,12 +73,12 @@ void MainButton::startBreathingEffect()
     QPropertyAnimation *fadeIn = new QPropertyAnimation(this, "glowStrength");
     fadeIn->setDuration(2500);
     fadeIn->setStartValue(0.1);
-    fadeIn->setEndValue(2.0);
+    fadeIn->setEndValue(1.0);
     fadeIn->setEasingCurve(QEasingCurve::InOutQuad);
 
     QPropertyAnimation *fadeOut = new QPropertyAnimation(this, "glowStrength");
     fadeOut->setDuration(2500);
-    fadeOut->setStartValue(2.0);
+    fadeOut->setStartValue(1.0);
     fadeOut->setEndValue(0.1);
     fadeOut->setEasingCurve(QEasingCurve::InOutQuad);
 
@@ -147,8 +150,9 @@ void MainButton::paintEvent(QPaintEvent *event)
     int h = height();
 
     QRadialGradient gradient(w / 2, h / 2, w / 2);
-    gradient.setColorAt(0, QColor(50, 100, 255, static_cast<int>(m_glowStrength * 50)));
-    gradient.setColorAt(1, QColor(10, 30, 70, 0));
+    gradient.setColorAt(0.0, QColor(50, 200, 220, static_cast<int>(m_glowStrength * 60))); // 中心：青蓝亮色
+    gradient.setColorAt(1.0, QColor(10, 40, 50, 0)); // 边缘：深青灰
+
 
     painter.setBrush(QBrush(gradient));
     painter.setPen(Qt::NoPen);

@@ -5,7 +5,9 @@
 #include <QWidget>
 #include <QTimer>
 #include <QDialog>
+#include <QPixmap>
 #include "settingpage.h"
+#include "leveldata.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -30,6 +32,7 @@ class Widget : public QWidget
 public:
     Widget(QWidget *parent = nullptr);
     ~Widget();
+
 protected:
     void mouseMoveEvent(QMouseEvent *event) override; // 处理鼠标移动事件
     void mousePressEvent(QMouseEvent *event) override; // 处理鼠标点击事件
@@ -37,10 +40,10 @@ protected:
 
 private slots:
     void updateTrail(); // 更新拖尾和水波的定时器槽函数
-    void changePage(int i);
-    void popSettingDialog();//弹出设置对话框
-    void saveSetting();
-
+    void changePage(int i) const;
+    void popSettingDialog();//弹出设置对话框，淡入效果
+    void saveSetting() const;
+    void initGame(int page, int index);
 private:
     Ui::Widget *ui;
     QTimer *timer; // 定时器，用于定期更新动画
@@ -51,6 +54,8 @@ private:
     SettingPage* setting;
     QDialog* settingDialog;
 
-    void fadeOutAndClose(QDialog* dlg) const;
+    QPixmap bgPixmap;
+
+    void fadeOutAndClose(QDialog* dlg) const;//淡出对话框并关闭
 };
 #endif // WIDGET_H

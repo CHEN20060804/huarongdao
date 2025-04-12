@@ -8,6 +8,8 @@ class MainStackedWidget : public QStackedWidget
     Q_OBJECT
 public:
     explicit MainStackedWidget(QWidget *parent = nullptr);
+    void fadeToIndex(int index, int duration = 500);
+
 protected:
     void mouseMoveEvent(QMouseEvent *event) override; // 处理鼠标移动事件
     void mousePressEvent(QMouseEvent *event) override; // 处理鼠标点击事件

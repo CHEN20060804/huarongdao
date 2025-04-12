@@ -18,8 +18,15 @@ signals:
     void mainBtnClicked(int i);
     void closeBtnClicked();
     void settingBtnClicked();
+protected:
+    void paintEvent(QPaintEvent* ev) override;
 private:
     Ui::StartPage *ui;
+
+    QPoint titlePosition;
+    QString titleText;
+    QFont titleFont;
+    QColor titleColor;
 };
 
 #endif // STARTPAGE_H
