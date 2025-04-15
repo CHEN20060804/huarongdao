@@ -83,7 +83,8 @@ void StartPage::paintEvent(QPaintEvent* ev)
     painter.drawPath(shadowPath);
 
     // 3. 描边
-    QPen outlinePen(QColor(220, 230, 255), 3);  // 更柔和的描边色
+    //QPen outlinePen(QColor(220, 230, 255), 1.5);  // 更柔和的描边色
+    QPen outlinePen(QColor(40, 40, 80), 6); // 稍带紫的深蓝色，更能托住亮色渐变
     painter.setPen(outlinePen);
     painter.setBrush(Qt::NoBrush);
     painter.drawPath(textPath);

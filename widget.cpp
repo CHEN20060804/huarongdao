@@ -20,7 +20,7 @@ Widget::Widget(QWidget *parent)
     setFixedSize(850, 600);
     setMouseTracking(true);
 
-    bgPixmap = QPixmap(":/video/res/bk7.jpg");  // widget.h 里定义 QPixmap bgPixmap;
+    bgPixmap = QPixmap(":/video/res/bk10.jpg");  // widget.h 里定义 QPixmap bgPixmap;
 
 
     ui->stackedWidget->setCurrentIndex(0);

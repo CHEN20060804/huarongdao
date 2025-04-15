@@ -24,7 +24,7 @@ LevelPage::LevelPage(QWidget *parent)
         choseLevelBtn->setText(QString::number(i+1));
         choseLevelBtn->move(i%5*150+100, i/5*150+150);
         connect(choseLevelBtn, &QPushButton::clicked, [=](){
-            emit levelSelected(4, i+1);
+            emit levelSelected(4, i);
         });
     }
 

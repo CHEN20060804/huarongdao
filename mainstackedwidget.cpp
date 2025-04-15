@@ -50,7 +50,7 @@ void MainStackedWidget::paintEvent(QPaintEvent *event)
 }
 void MainStackedWidget::mouseMoveEvent(QMouseEvent *event) {
     QStackedWidget::mouseMoveEvent(event);
-    qDebug() << "Mouse Move Position: " << event->pos();
+   // qDebug() << "Mouse Move Position: " << event->pos();
     // 添加新的轨迹点，并限制长度，防止拖尾过长
     trailPoints.prepend({event->pos(), 255}); // 新轨迹点插入到前面，保持靠近鼠标处最大
     if (trailPoints.size() > maxTrailLength) {
@@ -99,7 +99,7 @@ bool MainStackedWidget::eventFilter(QObject *obj, QEvent *event) {
                 trailPoints.pop_back();
             }
             update();
-            qDebug() << "Mouse Move (Global Filter):" << localPos;
+            //qDebug() << "Mouse Move (Global Filter):" << localPos;
         }
     }
     return QStackedWidget::eventFilter(obj, event);

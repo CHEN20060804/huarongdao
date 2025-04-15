@@ -22,9 +22,7 @@ GamePageOne::GamePageOne(QWidget *parent)
 }
 
 void GamePageOne::updateUI() {
-    QVector<QString> board = logic->getBoard(); // 改为一维
-    qDebug() << "Current board:";
-    for (const auto& cell : board) qDebug() << cell;
+    QVector<QString> board = logic->getBoard();
 
     for (int i = 0; i < board.size(); ++i) {
         QPushButton* btn = tiles[i];
@@ -38,24 +36,26 @@ void GamePageOne::updateUI() {
 
 void GamePageOne::tryMove(int i, int j) {
     if (logic->tryMove(i, j)) {
+        auto b = logic->getBoard();
+        qDebug() << "After move:" << b;
         updateUI();
         if (logic->isSolved()) {
             QMessageBox::information(this, "胜利", "你赢了！");
             logic->shuffle();
+            qDebug() << "logic board = " << logic->getBoard();
             updateUI();
         }
     }
 }
 
 void GamePageOne::loadLevel(Level level) {
-    int w = level.w;
-    int h = level.h;
-
+    int cols = level.w; // 列数
+    int rows = level.h; // 行数
     if (logic) {
         delete logic;
         logic = nullptr;
     }
-    logic = new GameLogicOne(w, h, level.element);
+    logic = new GameLogicOne(cols, rows, level.element);
 
     if (centralWidget) {
         delete centralWidget;
@@ -63,25 +63,24 @@ void GamePageOne::loadLevel(Level level) {
     }
     centralWidget = new QWidget(this);
 
-    centralWidget->move(300, 150);
+    centralWidget->move(300-(cols-3)*18, 150);
     gridLayout = new QGridLayout(centralWidget);
     gridLayout->setSpacing(5);
     centralWidget->setLayout(gridLayout);
 
     centralWidget->setStyleSheet("background-color: rgba(0, 255, 0, 50); border: 5px solid black;");
 
-    tiles = QVector<QPushButton*>(w * h, nullptr); // 生成一维数组
+    tiles = QVector<QPushButton*>(rows * cols, nullptr);
 
     // 创建按钮
-    for (int i = 0; i < w; ++i) {
-        for (int j = 0; j < h; ++j) {
-            int index = i * h + j; // 计算一维数组的索引
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < cols; ++col) {
+            int index = row * cols + col; // 行优先计算索引
             tiles[index] = new QPushButton(centralWidget);
-            tiles[index]->setFixedSize(80, 80);
-            tiles[index]->setStyleSheet("font-size: 24px;");
-            gridLayout->addWidget(tiles[index], i, j);
+            tiles[index]->setFixedSize(80-(cols-3)*10, 80-(rows-3)*10);
+            gridLayout->addWidget(tiles[index], row, col); // 按行、列添加
             connect(tiles[index], &QPushButton::clicked, this, [=]() {
-                this->tryMove(i, j);
+                this->tryMove(row, col); // 传递正确的行、列参数
             });
         }
     }

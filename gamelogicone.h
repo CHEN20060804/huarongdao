@@ -9,7 +9,7 @@ class GameLogicOne
 public:
     GameLogicOne(int cols, int rows, const QVector<QString>& initBoard);
 
-    bool isSolvable(const QVector<QString>& flat) const;
+    bool isSolvable(const QVector<int>&) const;
     void shuffle();
     bool tryMove(int i, int j);
     bool isSolved() const;
@@ -18,7 +18,7 @@ public:
 
 private:
     int rows, cols;
-    QVector<QString> board; // 修改为一维数组
+    QVector<QString> board;
     QVector<QString> target;
     int emptyIndex; // 空格的索引
 };
