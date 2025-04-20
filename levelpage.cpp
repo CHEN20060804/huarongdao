@@ -18,11 +18,11 @@ LevelPage::LevelPage(QWidget *parent)
         emit mainBtnClicked(0);
     });
 
-    for(int i = 0; i < 15; i++)
+    for(int i = 0; i < levelmaneger.getSize(); i++)
     {
-        MainButton* choseLevelBtn = new MainButton(this, 75, 60);
+        MainButton* choseLevelBtn = new MainButton(this, 70, 60);
         choseLevelBtn->setText(QString::number(i+1));
-        choseLevelBtn->move(i%5*150+100, i/5*150+150);
+        choseLevelBtn->move(i%5*150+100, i/5*100+150);
         connect(choseLevelBtn, &QPushButton::clicked, [=](){
             emit levelSelected(4, i);
         });

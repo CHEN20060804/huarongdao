@@ -20,7 +20,7 @@ Widget::Widget(QWidget *parent)
     setFixedSize(850, 600);
     setMouseTracking(true);
 
-    bgPixmap = QPixmap(":/video/res/bk10.jpg");  // widget.h 里定义 QPixmap bgPixmap;
+    bgPixmap = QPixmap(":/video/res/bk7.jpg");  // widget.h 里定义 QPixmap bgPixmap;
 
 
     ui->stackedWidget->setCurrentIndex(0);
@@ -159,7 +159,6 @@ void Widget::fadeOutAndClose(QDialog* dlg) const {
         dlg->close();         // 关闭对话框
         dlg->deleteLater();   // 自动销毁
     });
-
     fadeOutAnim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 

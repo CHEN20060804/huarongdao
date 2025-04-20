@@ -13,6 +13,7 @@ public:
     void shuffle();
     bool tryMove(int i, int j);
     bool isSolved() const;
+    int getCols() const;
 
     QVector<QString> getBoard() const;
 

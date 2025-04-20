@@ -13,29 +13,37 @@ SOURCES += \
     custompage.cpp \
     gamelogicone.cpp \
     gamepageone.cpp \
+    gamesessiondata.cpp \
     leveldata.cpp \
     levelmaneger.cpp \
+    leveloriginandautor.cpp \
     levelpage.cpp \
     main.cpp \
     mainbutton.cpp \
     mainstackedwidget.cpp \
     rankpage.cpp \
     settingpage.cpp \
+    slidingsidebar.cpp \
     startpage.cpp \
+    tilebutton.cpp \
     widget.cpp
 
 HEADERS += \
     custompage.h \
     gamelogicone.h \
     gamepageone.h \
+    gamesessiondata.h \
     leveldata.h \
     levelmaneger.h \
+    leveloriginandautor.h \
     levelpage.h \
     mainbutton.h \
     mainstackedwidget.h \
     rankpage.h \
     settingpage.h \
+    slidingsidebar.h \
     startpage.h \
+    tilebutton.h \
     widget.h
 
 FORMS += \

@@ -9,7 +9,6 @@ void Level::initLevel(const int& w, const int& h, const QString& s)
 {
     this->w = w;
     this->h = h;
-
     element =  QVector<QString>(h*w);
     int k = 0;
     for (int i = 0; i < w*h ;++i) {
@@ -23,4 +22,24 @@ void Level::initLevel(const int& w, const int& h, const QString& s)
         }
     }
 
+}
+int Level::getId() const
+{
+    return Id;
+}
+int Level::getw() const
+{
+    return w;
+}
+int Level::geth() const
+{
+    return h;
+}
+QVector<QString> Level::getElement() const
+{
+    return element;
+}
+void Level::setId(const int& Id)
+{
+    this->Id = Id;
 }

@@ -68,6 +68,11 @@ bool GameLogicOne::isSolved() const
     return board == target;
 }
 
+int GameLogicOne::getCols() const
+{
+    return cols;
+}
+
 QVector<QString> GameLogicOne::getBoard() const
 {
     return board;
