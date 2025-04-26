@@ -7,8 +7,6 @@ GameLogicOne::GameLogicOne(int cols, int rows, const QVector<QString>& initBoard
     : rows(rows), cols(cols), board(initBoard)
 {
     target = initBoard; // 目标顺序与初始棋盘相同
-    qDebug() << "目标顺序 (target):" << target;
-
 }
 // 检查拼图是否可解
 bool GameLogicOne::isSolvable(const QVector<int>& order) const {

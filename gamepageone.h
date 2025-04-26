@@ -22,7 +22,7 @@ public:
     explicit GamePageOne(QWidget *parent = nullptr);
     ~GamePageOne();
 
-    void loadLevel(const Level& level);
+    void loadLevel(const Level& level, bool isCustom);
 
 signals:
     void mainBtnClicked(int);
@@ -46,14 +46,16 @@ private:
     SlidingSidebar* recordBar;
     SlidingSidebar* targetBar;
     Level level;
+    bool isCustom;
 
     void initRecordSlidingSidebar();
-    void showTargetText(const QString& text, const QString& origin, const QString& autor);
+    void showTargetText(const QString& text);
     void updateStepdisplay();
     void startRecord(Level level);
     void resetRecord();
     void stopRecord();
-
+    void setTitle(int ID);
+    void youWin();
 };
 
 #endif // GAMEPAGEONE_H

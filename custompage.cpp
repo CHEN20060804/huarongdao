@@ -1,6 +1,7 @@
 #include "custompage.h"
 #include "ui_custompage.h"
 #include "mainbutton.h"
+
 CustomPage::CustomPage(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CustomPage)
@@ -14,7 +15,14 @@ CustomPage::CustomPage(QWidget *parent)
     connect(backBtn, &QPushButton::clicked, [=](){
         emit mainBtnClicked(0);
     });
+    connect(ui->creatBtn, &QPushButton::clicked, [=](){
+        emit creatBtnClicked();
+    });
+    connect(ui->loadBtn, &QPushButton::clicked, [=](){
+        emit loadBtnClicked();
+    });
 }
+
 
 CustomPage::~CustomPage()
 {

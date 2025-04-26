@@ -37,9 +37,8 @@ int TileButton::col()
 
 void TileButton::enterEvent(QEnterEvent* event)
 {
-    qDebug() << "Hovering!";
     auto* shadow = new QGraphicsDropShadowEffect(this);
-    shadow->setBlurRadius(50);
+    shadow->setBlurRadius(60);
     shadow->setColor(QColor(0, 0, 100));
     shadow->setOffset(0, 0);
     setGraphicsEffect(shadow);

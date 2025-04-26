@@ -36,7 +36,7 @@ SlidingSidebar::SlidingSidebar(QWidget* parent,
 
     int wrapWidth = sidebarWidth
                     - contentLayout->contentsMargins().left()
-                    - contentLayout->contentsMargins().right();
+                    - contentLayout->contentsMargins().right() + 10;
 
     for (int i = 0; i < maxline; ++i) {
         QLabel* line = new QLabel(contentWidget);
@@ -87,14 +87,37 @@ void SlidingSidebar::paintEvent(QPaintEvent* event)
     QWidget::paintEvent(event);
 }
 
+// void SlidingSidebar::setLineText(int lineIndex, const QString& text)
+// {
+//     if (lineIndex >= 0 && lineIndex < lineLabels.size()) {
+//         lineLabels[lineIndex]->setText(text);
+//         contentLayout->activate();
+//     }
+// }
+
 void SlidingSidebar::setLineText(int lineIndex, const QString& text)
 {
     if (lineIndex >= 0 && lineIndex < lineLabels.size()) {
-        lineLabels[lineIndex]->setText(text);
-        contentLayout->activate();
+        QLabel* label = lineLabels[lineIndex];
+        label->setText(text);
+
+        // 自动计算文本高度
+        QFontMetrics fm(label->font());
+        int wrapWidth = label->width(); // 或者提前保存的 wrapWidth
+        QRect bound = fm.boundingRect(0, 0, wrapWidth, 9999, Qt::TextWordWrap, text);
+
+        int finalHeight = bound.height();
+
+        // 限制最大高度，比如最多 6 行
+        int maxHeight = 20 * 1.6 * 8;  // 乘 1.6 留余地防止上下裁剪
+        finalHeight = std::min(finalHeight, maxHeight);
+
+        label->setMinimumHeight(finalHeight);
+        label->setMaximumHeight(finalHeight);
+        label->updateGeometry();
+        contentLayout->invalidate();
     }
 }
-
 
 void SlidingSidebar::toggle()
 {

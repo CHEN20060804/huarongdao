@@ -20,7 +20,14 @@ GamePageOne::GamePageOne(QWidget *parent)
     backBtn->setIconSize(QSize(30, 30));
     connect(backBtn, &QPushButton::clicked, [=](){
         resetRecord();
-        emit mainBtnClicked(1);
+        if(isCustom==false)
+        {
+            emit mainBtnClicked(1);
+        }
+        else
+        {
+        emit mainBtnClicked(2);
+        }
     });
 }
 
@@ -82,27 +89,36 @@ void GamePageOne::tryMove(int i, int j) {
 
         if (logic->isSolved()) {
             stopRecord();
-            QMessageBox::information(this, "胜利", "你赢了！");
-            resetRecord();
-            logic->shuffle();
-            qDebug() << "logic board = " << logic->getBoard();
-            updateUI();
+            youWin();//胜利效果
         }
     }
 }
 
-void GamePageOne::loadLevel(const Level& level) {
+void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     this->level = level;
+    this->isCustom = isCustom;
     int cols = level.getw();
     int rows = level.geth();
+    int ID = level.getId();
 
-    //初始化滑动框
+    if(isCustom==false)
+    {
+        setTitle(ID);
+        //初始化滑动框
+        if(targetBar)
+        {
+            delete targetBar;
+            targetBar = nullptr;
+        }
+        QString targetText = LevelOriginAndAutor::getTargetText(ID);
+        showTargetText(targetText);
+    }
+    else
+    {
+        ui->label->hide();
+    }
+
     initRecordSlidingSidebar();
-    QString targetText = LevelOriginAndAutor::getTargetText(level.getId());
-    QString origin = LevelOriginAndAutor::getOrigin(level.getId());
-    QString autor = LevelOriginAndAutor::getAutor(level.getId());
-    showTargetText(targetText, origin, autor);
-
     // ——— 1. 清理旧逻辑和界面 ———
     if (logic) {
         delete logic;
@@ -187,25 +203,18 @@ void GamePageOne::initRecordSlidingSidebar()
     recordBar->show();
 }
 
-void GamePageOne::showTargetText(const QString& targetText, const QString& origin, const QString& autor)
+void GamePageOne::showTargetText(const QString& targetText)
 {
-    if(targetBar)
-    {
-        delete targetBar;
-        targetBar = nullptr;
-    }
     targetBar = new SlidingSidebar(this,
-                                   200,                     // 宽度
-                                   400,                     // 高度
-                                   QPoint(0 , 100), // 初始位置
+                                   260,                     // 宽度
+                                   250,                     // 高度
+                                   QPoint(0 , 152), // 初始位置
                                    "#FFF0F5",               // 背景颜色
                                    "楷体",                  // 字体
                                    16,                      // 字号
                                    5,
                                    SlidingSidebar::SlideLeft); // 向右收起
     targetBar->setLineText(0, targetText);
-    targetBar->setLineText(1, origin);
-    targetBar->setLineText(2, autor);
     targetBar->show();
 }
 
@@ -255,6 +264,42 @@ void GamePageOne::stopRecord()
     gameTimer->stop();
     double seconds = session.getElapsedSeconds();
     currentSeconds = QString::number(seconds, 'f', 1);
+}
+
+void GamePageOne::setTitle(int ID)
+{
+    QFont font;
+    font.setPointSize(36);
+    font.setItalic(false);
+    font.setFamily("Raleway");
+    ui->label->setFont(font);
+    ui->label->setStyleSheet("border-radius: 10px; border: 2px solid white;");
+    ui->label->setAlignment(Qt::AlignCenter);  // 设置居中对齐
+    ui->label->setText(QString::number(ID + 1));
+}
+void GamePageOne::youWin()
+{
+    for(int i = 0;i< tiles.size();i++)
+    {
+        tiles[i]->setEnabled(false);
+    }
+    auto* glowEffect = new QGraphicsDropShadowEffect(this);
+    glowEffect->setColor(QColor(255, 215, 0)); // 金黄色
+    glowEffect->setOffset(0, 0);               // 无偏移，仅环绕边缘
+    glowEffect->setBlurRadius(60);             // 柔和模糊程度
+    centralWidget->setGraphicsEffect(glowEffect);
+
+    // 创建动画：改变 glowEffect 的透明度（通过 color alpha）
+    auto* anim = new QPropertyAnimation(glowEffect, "color");
+    anim->setDuration(2000); // 一个周期2秒
+    anim->setLoopCount(-1);  // 无限循环
+
+    // 设置颜色变化：从浅金 → 深金 → 浅金
+    anim->setKeyValueAt(0.0, QColor(255, 215, 0, 80));   // 开始：淡金
+    anim->setKeyValueAt(0.5, QColor(255, 215, 0, 255));  // 中间：亮金
+    anim->setKeyValueAt(1.0, QColor(255, 215, 0, 80));   // 结束：淡金
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 GamePageOne::~GamePageOne() {

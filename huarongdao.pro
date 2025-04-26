@@ -10,6 +10,8 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    creatgamepage.cpp \
+    customgamemaneger.cpp \
     custompage.cpp \
     gamelogicone.cpp \
     gamepageone.cpp \
@@ -18,6 +20,7 @@ SOURCES += \
     levelmaneger.cpp \
     leveloriginandautor.cpp \
     levelpage.cpp \
+    loadgamepage.cpp \
     main.cpp \
     mainbutton.cpp \
     mainstackedwidget.cpp \
@@ -29,6 +32,8 @@ SOURCES += \
     widget.cpp
 
 HEADERS += \
+    creatgamepage.h \
+    customgamemaneger.h \
     custompage.h \
     gamelogicone.h \
     gamepageone.h \
@@ -37,6 +42,7 @@ HEADERS += \
     levelmaneger.h \
     leveloriginandautor.h \
     levelpage.h \
+    loadgamepage.h \
     mainbutton.h \
     mainstackedwidget.h \
     rankpage.h \
@@ -47,9 +53,11 @@ HEADERS += \
     widget.h
 
 FORMS += \
+    creatgamepage.ui \
     custompage.ui \
     gamepageone.ui \
     levelpage.ui \
+    loadgamepage.ui \
     rankpage.ui \
     settingpage.ui \
     startpage.ui \

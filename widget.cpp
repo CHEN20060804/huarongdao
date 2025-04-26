@@ -16,6 +16,12 @@ Widget::Widget(QWidget *parent)
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
+
+    //先切一次关卡选择页面，避免加载卡顿
+    ui->stackedWidget->setCurrentIndex(1); // 切到关卡页
+    QApplication::processEvents();         // 强制处理 paint/layout/init
+    ui->stackedWidget->setCurrentIndex(0); // 切回主页
+
     setWindowTitle("活字华容道");//设置标题
     setFixedSize(850, 600);
     setMouseTracking(true);
@@ -29,6 +35,7 @@ Widget::Widget(QWidget *parent)
     connect(timer, &QTimer::timeout, this, &Widget::updateTrail);
     timer->start(16);
 
+    //处理页面切换
     connect(ui->startpage, &StartPage::mainBtnClicked, this, &Widget::changePage);
 
     connect(ui->levelpage, &LevelPage::mainBtnClicked, this, &Widget::changePage);
@@ -44,6 +51,10 @@ Widget::Widget(QWidget *parent)
     connect(ui->startpage, &StartPage::closeBtnClicked,this, [=](){close();});
 
     connect(ui->startpage, &StartPage::settingBtnClicked, this, &Widget::popSettingDialog);
+
+    connect(ui->custompage, &CustomPage::creatBtnClicked, this, &Widget::popCreatingDialog);
+
+    connect(ui->custompage, &CustomPage::loadBtnClicked, this, &Widget::popLoadingDialog);
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -112,41 +123,124 @@ void Widget::popSettingDialog()
 {
     setting = new SettingPage(this);  // 创建SettingPage
 
-    settingDialog = new QDialog(this, Qt::FramelessWindowHint);
-    settingDialog->setAttribute(Qt::WA_TranslucentBackground, true);
-    settingDialog->setFixedSize(600, 400);
-    settingDialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog = new QDialog(this, Qt::FramelessWindowHint);
+    dialog->setAttribute(Qt::WA_TranslucentBackground, true);
+    dialog->setFixedSize(600, 400);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
     // 创建QVBoxLayout，并设置为QDialog的布局
-    QVBoxLayout* layout = new QVBoxLayout(settingDialog);  // 让layout的父对象是settingDialog
+    QVBoxLayout* layout = new QVBoxLayout(dialog);  // 让layout的父对象是settingDialog
     layout->addWidget(setting);  // 把SettingPage加到layout里
     layout->setContentsMargins(0, 0, 0, 0); // 去除内边距
     layout->setSpacing(0); // 去除控件之间的间距
 
     connect(setting, &SettingPage::saveBtnClicked, this, &Widget::saveSetting);
     connect(setting, &SettingPage::cancelBtnClicked, this, [=]() {
-        fadeOutAndClose(settingDialog);
+        fadeOutAndClose(dialog);
         setting = nullptr;
     });
 
     // 添加淡入动画
-    settingDialog->setWindowOpacity(0.0);
-    QPropertyAnimation* fadeInAnim = new QPropertyAnimation(settingDialog, "windowOpacity");
+    dialog->setWindowOpacity(0.0);
+    QPropertyAnimation* fadeInAnim = new QPropertyAnimation(dialog, "windowOpacity");
     fadeInAnim->setDuration(500);
     fadeInAnim->setStartValue(0.0);
     fadeInAnim->setEndValue(1.0);
     fadeInAnim->start(QAbstractAnimation::DeleteWhenStopped);
 
-    settingDialog->exec();
+    dialog->exec();
 }
 
+void Widget::popCreatingDialog()
+{
+    creating = new CreatGamePage(this);
+
+    dialog = new QDialog(this, Qt::FramelessWindowHint);
+    dialog->setModal(true);
+    dialog->setAttribute(Qt::WA_TranslucentBackground, true);
+    dialog->setFixedSize(600, 400);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+
+    QVBoxLayout* layout = new QVBoxLayout(dialog);
+    layout->addWidget(creating);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    connect(creating, &CreatGamePage::saveBtnClicked, this, &Widget::saveCustomGame);
+    connect(creating, &CreatGamePage::cancelBtnClicked, this, [=]() {
+        fadeOutAndClose(dialog);
+        creating = nullptr;
+    });
+
+    dialog->setWindowOpacity(0.0);
+    QPropertyAnimation* fadeInAnim = new QPropertyAnimation(dialog, "windowOpacity");
+    fadeInAnim->setDuration(500);
+    fadeInAnim->setStartValue(0.0);
+    fadeInAnim->setEndValue(1.0);
+    fadeInAnim->start(QAbstractAnimation::DeleteWhenStopped);
+
+    dialog->exec();  // ✅ 非阻塞、不再自动销毁
+}
+void Widget::saveCustomGame()
+{
+    if(!creating->saveCustomGame())
+    {
+        qDebug() << "未能保存";
+        return;
+    }
+}
+
+void Widget::popLoadingDialog()
+{
+    loading = new LoadGamePage(this);  // 创建SettingPage
+    loading->showOptions();
+
+    dialog = new QDialog(this, Qt::FramelessWindowHint);
+    dialog->setAttribute(Qt::WA_TranslucentBackground, true);
+    dialog->setFixedSize(600, 400);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    // 创建QVBoxLayout，并设置为QDialog的布局
+    QVBoxLayout* layout = new QVBoxLayout(dialog);  // 让layout的父对象是settingDialog
+    layout->addWidget(loading);  // 把SettingPage加到layout里
+    layout->setContentsMargins(0, 0, 0, 0); // 去除内边距
+    layout->setSpacing(0); // 去除控件之间的间距
+
+    connect(loading, &LoadGamePage::sureBtnClicked, this, &Widget::loadCustomGame);
+    connect(loading, &LoadGamePage::cancelBtnClicked, this, [=]() {
+        fadeOutAndClose(dialog);
+        loading = nullptr;
+    });
+
+    // 添加淡入动画
+    dialog->setWindowOpacity(0.0);
+    QPropertyAnimation* fadeInAnim = new QPropertyAnimation(dialog, "windowOpacity");
+    fadeInAnim->setDuration(500);
+    fadeInAnim->setStartValue(0.0);
+    fadeInAnim->setEndValue(1.0);
+    fadeInAnim->start(QAbstractAnimation::DeleteWhenStopped);
+
+    dialog->exec();
+}
+
+void Widget::loadCustomGame()
+{
+    Level level;
+    if(!loading->loadCustomGame(level))
+    {
+        return;
+    }
+    changePage(4);
+    ui->gamepageone->loadLevel(level, true);
+    fadeOutAndClose(dialog);
+    loading = nullptr;
+}
 void Widget::changePage(int i) const
 {
     ui->stackedWidget->fadeToIndex(i);
 }
 
-void Widget::saveSetting() const
+void Widget::saveSetting()
 {
-    fadeOutAndClose(settingDialog);
+    fadeOutAndClose(dialog);
+    setting = nullptr;
 }
 
 void Widget::fadeOutAndClose(QDialog* dlg) const {
@@ -166,8 +260,11 @@ void Widget::initGame(int page, int index)
 {
     changePage(page);
     Level level = ui->levelpage->callLevelManger().getLevel(index);
-    ui->gamepageone->loadLevel(level);
+    ui->gamepageone->loadLevel(level, false);
 }
+
+
+
 Widget::~Widget()
 {
     delete ui;

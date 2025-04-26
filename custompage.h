@@ -2,7 +2,7 @@
 #define CUSTOMPAGE_H
 
 #include <QWidget>
-
+#include "creatgamepage.h"
 namespace Ui {
 class CustomPage;
 }
@@ -16,6 +16,8 @@ public:
     ~CustomPage();
 signals:
     void mainBtnClicked(int i);
+    void creatBtnClicked();
+    void loadBtnClicked();
 private:
     Ui::CustomPage *ui;
 };

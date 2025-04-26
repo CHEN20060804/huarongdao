@@ -8,6 +8,8 @@
 #include <QPixmap>
 #include "settingpage.h"
 #include "leveldata.h"
+#include "creatgamepage.h"
+#include "loadgamepage.h"
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -41,9 +43,13 @@ protected:
 private slots:
     void updateTrail(); // 更新拖尾和水波的定时器槽函数
     void changePage(int i) const;
-    void popSettingDialog();//弹出设置对话框，淡入效果
-    void saveSetting() const;
+    void popSettingDialog();//弹出设置对话框
+    void popCreatingDialog();//弹出设置对话框
+    void popLoadingDialog();//弹出设置对话框
+    void saveSetting() ;
     void initGame(int page, int index);
+    void saveCustomGame();
+    void loadCustomGame();
 private:
     Ui::Widget *ui;
     QTimer *timer; // 定时器，用于定期更新动画
@@ -52,7 +58,11 @@ private:
     int maxTrailLength = 80; // 限制拖尾最大长度，防止过长
     int rippleMaxSize = 100; // 增加水波纹的最大扩散范围
     SettingPage* setting;
-    QDialog* settingDialog;
+    CreatGamePage* creating;
+    LoadGamePage* loading;
+    QDialog* dialog;
+
+
 
     QPixmap bgPixmap;
 

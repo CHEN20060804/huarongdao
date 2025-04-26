@@ -18,21 +18,22 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>841</width>
-     <height>571</height>
+     <width>850</width>
+     <height>600</height>
     </rect>
    </property>
    <property name="focusPolicy">
     <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>5</number>
    </property>
    <widget class="StartPage" name="startpage"/>
    <widget class="LevelPage" name="levelpage"/>
    <widget class="CustomPage" name="custompage"/>
    <widget class="RankPage" name="rankpage"/>
    <widget class="GamePageOne" name="gamepageone"/>
+   <widget class="CreatGamePage" name="creatgamepage"/>
   </widget>
  </widget>
  <customwidgets>
@@ -70,6 +71,12 @@
    <class>GamePageOne</class>
    <extends>QWidget</extends>
    <header location="global">gamepageone.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CreatGamePage</class>
+   <extends>QWidget</extends>
+   <header location="global">creatgamepage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

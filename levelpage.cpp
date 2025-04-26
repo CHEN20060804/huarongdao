@@ -30,10 +30,11 @@ LevelPage::LevelPage(QWidget *parent)
 
     QFont font;
     font.setFamily("楷体");  // 设置字体
-    font.setPointSize(36);       // 设置字号
+    font.setPointSize(28);       // 设置字号
     font.setBold(true);          // 设置加粗
     font.setItalic(false);       // 设置斜体
     ui->label->setFont(font);
+    ui->label->setAlignment(Qt::AlignCenter);  // 设置居中对齐
 }
 
 const LevelManeger& LevelPage::callLevelManger() const
