@@ -5,6 +5,13 @@
 #include <QListWidget>
 #include "leveldata.h"
 
+enum Model
+{
+    ONE,
+    TWO,
+    AI
+};
+
 namespace Ui {
 class LoadGamePage;
 }
@@ -16,7 +23,7 @@ class LoadGamePage : public QWidget
 public:
     explicit LoadGamePage(QWidget *parent = nullptr);
     void showOptions();
-    bool loadCustomGame(Level& level);
+    bool loadCustomGame(Level& level, Model& model);
     ~LoadGamePage();
 signals:
     void sureBtnClicked();

@@ -26,14 +26,22 @@
     <enum>Qt::FocusPolicy::NoFocus</enum>
    </property>
    <property name="currentIndex">
-    <number>5</number>
+    <number>6</number>
    </property>
    <widget class="StartPage" name="startpage"/>
    <widget class="LevelPage" name="levelpage"/>
    <widget class="CustomPage" name="custompage"/>
    <widget class="RankPage" name="rankpage"/>
    <widget class="GamePageOne" name="gamepageone"/>
-   <widget class="CreatGamePage" name="creatgamepage"/>
+   <widget class="GamePageTwo" name="gamepagetwo">
+    <property name="maximumSize">
+     <size>
+      <width>850</width>
+      <height>16777215</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="GamePageWithAI" name="gamepagewithai"/>
   </widget>
  </widget>
  <customwidgets>
@@ -74,9 +82,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CreatGamePage</class>
+   <class>GamePageTwo</class>
    <extends>QWidget</extends>
-   <header location="global">creatgamepage.h</header>
+   <header location="global">gamepagetwo.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GamePageWithAI</class>
+   <extends>QWidget</extends>
+   <header>gamepagewithai.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

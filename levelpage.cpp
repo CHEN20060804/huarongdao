@@ -29,7 +29,7 @@ LevelPage::LevelPage(QWidget *parent)
     }
 
     QFont font;
-    font.setFamily("楷体");  // 设置字体
+    font.setFamily("Segoe UI");  // 设置字体
     font.setPointSize(28);       // 设置字号
     font.setBold(true);          // 设置加粗
     font.setItalic(false);       // 设置斜体

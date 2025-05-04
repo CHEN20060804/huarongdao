@@ -35,7 +35,7 @@
     </size>
    </property>
    <property name="text">
-    <string>加载棋盘</string>
+    <string>载入棋盘</string>
    </property>
   </widget>
   <widget class="MainButton" name="creatBtn">
@@ -63,12 +63,47 @@
     <string>创建棋盘</string>
    </property>
   </widget>
+  <widget class="MainButton" name="deleteBtn">
+   <property name="geometry">
+    <rect>
+     <x>341</x>
+     <y>424</y>
+     <width>160</width>
+     <height>60</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>删除棋盘</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>276</x>
+     <y>100</y>
+     <width>291</width>
+     <height>111</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Segoe UI Variable</family>
+     <pointsize>28</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>自定义模式</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignmentFlag::AlignCenter</set>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
    <class>MainButton</class>
    <extends>QPushButton</extends>
-   <header location="global">mainbutton.h</header>
+   <header>mainbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

@@ -10,6 +10,8 @@
 #include "leveldata.h"
 #include "creatgamepage.h"
 #include "loadgamepage.h"
+#include "deletegamepage.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
@@ -27,6 +29,7 @@ struct RippleEffect {
     int radius; // 水波扩散半径
 };
 
+//所有的页面切换，弹窗处理都交给这个类
 class Widget : public QWidget
 {
     Q_OBJECT
@@ -44,12 +47,14 @@ private slots:
     void updateTrail(); // 更新拖尾和水波的定时器槽函数
     void changePage(int i) const;
     void popSettingDialog();//弹出设置对话框
-    void popCreatingDialog();//弹出设置对话框
-    void popLoadingDialog();//弹出设置对话框
-    void saveSetting() ;
+    void popCreatingDialog();//弹出创建对话框
+    void popLoadingDialog();//弹出载入对话框
+    void popDeletingDialog();//弹出删除对话框
+    void saveSetting();
     void initGame(int page, int index);
     void saveCustomGame();
     void loadCustomGame();
+    void deleteCustomGame();
 private:
     Ui::Widget *ui;
     QTimer *timer; // 定时器，用于定期更新动画
@@ -60,6 +65,7 @@ private:
     SettingPage* setting;
     CreatGamePage* creating;
     LoadGamePage* loading;
+    DeleteGamePage* deleting;
     QDialog* dialog;
 
 

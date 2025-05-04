@@ -18,5 +18,9 @@
         <file>res/bk10.jpg</file>
         <file>res/bk11.jpg</file>
         <file>res/creatPage.jpg</file>
+        <file>res/close.png</file>
+        <file>res/delete.png</file>
+        <file>res/loading.png</file>
+        <file>res/save.png</file>
     </qresource>
 </RCC>

@@ -4,8 +4,9 @@
 #include <QGraphicsDropShadowEffect>
 #include <QPainter>
 #include <QVBoxLayout>
-#include <QMessageBox>
 #include <QRegularExpression>
+#include "poptips.h"
+
 LoadGamePage::LoadGamePage(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::LoadGamePage)
@@ -13,8 +14,14 @@ LoadGamePage::LoadGamePage(QWidget *parent)
     ui->setupUi(this);
     setFixedSize(600, 400);
 
-    ui->sureBtn->setwh(100, 50);
-    ui->cancelBtn->setwh(100, 50);
+    ui->sureBtn->setwh(160, 50);
+    ui->sureBtn->setIcon(QIcon(":/video/res/loading.png"));
+    ui->sureBtn->setIconSize(QSize(40, 40));
+
+
+    ui->cancelBtn->setwh(50, 50);
+    ui->cancelBtn->setIcon(QIcon(":/video/res/close.png"));
+    ui->cancelBtn->setIconSize(QSize(30, 30));
     connect(ui->sureBtn, &QPushButton::clicked, [=](){
         emit sureBtnClicked();
     });
@@ -30,7 +37,7 @@ LoadGamePage::LoadGamePage(QWidget *parent)
 
     listWidget = new QListWidget(this);  // 创建 QListWidget 控件
     listWidget->setSpacing(4);  // 每个 item 之间留 4px
-    listWidget->setGeometry(150, 50, 300, 180);  // 参数依次是 x, y, width, height
+    listWidget->setGeometry(150, 30, 300, 215);  // 参数依次是 x, y, width, height
     listWidget->setStyleSheet(R"(
 QListWidget {
     background-color: #2E2E2E;
@@ -62,26 +69,26 @@ QListWidget::item:selected {
 
     this->setStyleSheet(R"(
 QRadioButton {
-    spacing: 8px;                   /* 文本与圆点的间距 */
-    font: 10pt "Segoe UI";          /* 现代字体 */
-    color: #EEEEEE;                 /* 文字颜色 */
+    spacing: 8px;
+    font: 10pt "Segoe UI";
+    color: #EEEEEE;
 }
 
 QRadioButton::indicator {
-    width: 18px;                    /* 圆点大小 */
+    width: 18px;
     height: 18px;
-    border-radius: 9px;             /* 圆形 */
-    border: 2px solid #777777;      /* 灰色边框 */
+    border-radius: 9px;
+    border: 2px solid #777777;
     background: transparent;
 }
 
 QRadioButton::indicator:hover {
-    border: 2px solid #2A6CF6;      /* 悬停时边框高亮 */
+    border: 2px solid #2A6CF6;
 }
 
 QRadioButton::indicator:checked {
-    background-color: #2A6CF6;      /* 选中时填充蓝色 */
-    border: 2px solid #2A6CF6;      /* 选中时边框同色 */
+    background-color: #2A6CF6;
+    border: 2px solid #2A6CF6;
 }
 
 QRadioButton::indicator:disabled {
@@ -133,53 +140,114 @@ void LoadGamePage::showOptions()
 }
 
 
-bool LoadGamePage::loadCustomGame(Level& level)
+bool LoadGamePage::loadCustomGame(Level& level, Model& model)
 {
     QListWidgetItem* currentItem = listWidget->currentItem();
     if (!currentItem)
     {
-        QMessageBox::warning(this, "提示", "请先选择一个自定义关卡！");
+        PopTips::Bad(this, listWidget, "请先选择一个自定义棋盘");
         return false;
     }
 
     QString selectedTitle = currentItem->text();
     QStringList stream = CustomGameManeger::getInstance()->loadGameFromFile(selectedTitle);
 
-    if (stream.size() != 2)
+    if (stream.size() != 2 || stream[0].isEmpty() || stream[1].isEmpty())
     {
-        QMessageBox::critical(this, "加载错误", "自定义关卡数据格式错误（缺少必要的信息）！");
+        PopTips::Bad(this, listWidget, "自定义关卡数据格式错误（缺少必要的信息）");
+
         return false;
     }
 
     QStringList domain = stream[0].split(' ', Qt::SkipEmptyParts);
     if (domain.size() != 2)
     {
-        QMessageBox::critical(this, "加载错误", "关卡尺寸数据格式错误！");
+        PopTips::Bad(this, listWidget, "关卡尺寸数据格式错误");
         return false;
     }
 
     bool okH = false, okW = false;
     int h = domain[0].toInt(&okH);
     int w = domain[1].toInt(&okW);
-    if (!okH || !okW || h <= 0 || w <= 0)
+    if (!okH || !okW || h < 3 || w < 3 || h > 6 || w > 6)
     {
-        QMessageBox::critical(this, "加载错误", "关卡尺寸数据非法（必须是正整数）！");
+        PopTips::Bad(this, listWidget, "关卡尺寸数据非法");
         return false;
     }
 
     QString content = stream[1];
 
-    // 内容基本合法性检查（这里可以按你的元素规则进一步细化）
-    if (content.contains(QRegularExpression("[ \\x{3000}]")))
+    // 检查非法空格
+    static QRegularExpression badSpaceRe("[ \\x{3000}]");
+    if (content.contains(badSpaceRe))
     {
-        QMessageBox::critical(this, "加载错误", "关卡内容中包含非法空格！");
+        PopTips::Bad(this, listWidget, "关卡包含非法空格");
+
         return false;
     }
 
-    // 成功加载
-    if(!level.initForCustom(w, h, content))
+    // 检查 {} 配对，并计算真实元素数量
+    int realElementCount = 0;
+    for (int i = 0; i < content.size(); ) {
+        if (content[i] == '{') {
+            int end = content.indexOf('}', i);
+            if (end != -1) {
+                QString inner = content.mid(i + 1, end - i - 1);
+                if (inner.isEmpty()) {
+                    PopTips::Bad(this, listWidget, "关卡内容格式错误（空的 {} 不合法）");
+
+                    return false;
+                }
+                if (inner.contains('{') || inner.contains('}')) {
+                    PopTips::Bad(this, listWidget, "关卡内容格式错误（嵌套 {} 不合法）");
+
+                    return false;
+                }
+                realElementCount++;
+                i = end + 1;
+            } else {
+                PopTips::Bad(this, listWidget, "关卡内容格式错误（缺少 } ）");
+
+                return false;
+            }
+        } else if (content[i] == '}') {
+            PopTips::Bad(this, listWidget, "关卡内容格式错误（孤立的 } ）");
+            return false;
+        } else {
+            realElementCount++;
+            ++i;
+        }
+    }
+
+    // 检查元素数量
+    if (realElementCount != h * w - 1)
     {
-        QMessageBox::critical(this, "加载错误", "关卡未能初始化！");
+        PopTips::Bad(this, listWidget,  QString("关卡内容元素数量错误（需要 %1 个元素，实际 %2 个）").arg(h*w-1).arg(realElementCount));
+
+        return false;
+    }
+
+    if (!level.initForCustom(w, h, content))
+    {
+        PopTips::Bad(this, listWidget, "关卡未能初始化！");
+        return false;
+    }
+    // 成功加载
+    if(ui->radioBtnOne->isChecked())
+    {
+        model = ONE;
+    }
+    else if(ui->radioBtnTwo->isChecked())
+    {
+        model = TWO;
+    }
+    else if(ui->radioBtnAI->isChecked())
+    {
+        model = AI;
+    }
+    else
+    {
+        PopTips::Bad(this, listWidget, "请选择模式");
         return false;
     }
     return true;

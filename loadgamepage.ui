@@ -16,27 +16,27 @@
   <widget class="MainButton" name="sureBtn">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>220</x>
      <y>320</y>
-     <width>100</width>
+     <width>160</width>
      <height>50</height>
     </rect>
    </property>
    <property name="text">
-    <string>确定</string>
+    <string/>
    </property>
   </widget>
   <widget class="MainButton" name="cancelBtn">
    <property name="geometry">
     <rect>
-     <x>340</x>
-     <y>320</y>
-     <width>100</width>
+     <x>510</x>
+     <y>30</y>
+     <width>50</width>
      <height>50</height>
     </rect>
    </property>
    <property name="text">
-    <string>取消</string>
+    <string/>
    </property>
   </widget>
   <widget class="QRadioButton" name="radioBtnAI">
@@ -83,7 +83,7 @@
   <customwidget>
    <class>MainButton</class>
    <extends>QPushButton</extends>
-   <header location="global">mainbutton.h</header>
+   <header>mainbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

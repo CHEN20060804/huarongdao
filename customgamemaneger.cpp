@@ -4,15 +4,16 @@
 #include <QCoreApplication>
 #include <QStringList>
 CustomGameManeger::CustomGameManeger()
+    :listFile(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/yourCustomGame/yourGameList.txt"),
+    dirPath(QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/yourCustomGame/")
 {
-    QFile file(QCoreApplication::applicationDirPath() + "/yourCustomGame/yourGameList.txt");
-    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QTextStream in(&file);
+    if (listFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&listFile);
         while (!in.atEnd()) {
             QString line = in.readLine();  // 读取一行
             titles.append(line);
         }
-        file.close();
+        listFile.close();
     }
 }
 CustomGameManeger* CustomGameManeger::getInstance()
@@ -20,9 +21,9 @@ CustomGameManeger* CustomGameManeger::getInstance()
     static CustomGameManeger maneger;
     return &maneger;
 }
+
 bool CustomGameManeger::saveGameToFile(const QString& title, const QString& content)
 {
-    QString dirPath = QCoreApplication::applicationDirPath() + "/yourCustomGame/";  // 获取当前 exe 文件所在的目录
     QDir dir;
     if (!dir.mkpath(dirPath)) {
         qDebug() << "Failed to create directory:" << dirPath;
@@ -42,9 +43,7 @@ bool CustomGameManeger::saveGameToFile(const QString& title, const QString& cont
     out << content;
     file.close();    // 关闭文件
 
-
-    QString listFilePath = QCoreApplication::applicationDirPath() + "/yourCustomGame/yourGameList.txt";  // 获取当前 exe 文件所在的目录
-    QFile listFile(listFilePath);
+    //写入列表文件
     listFile.open(QIODevice::WriteOnly|QIODevice::Append|QIODevice::Text);
     QTextStream outList(&listFile);
     outList << title << Qt::endl;
@@ -59,7 +58,7 @@ bool CustomGameManeger::saveGameToFile(const QString& title, const QString& cont
 
 QStringList CustomGameManeger::loadGameFromFile(const QString& title) const
 {
-    QString filePath = QCoreApplication::applicationDirPath() + "/yourCustomGame/" + title + ".txt";  // 获取当前 exe 文件所在的目录
+    QString filePath = dirPath + title + ".txt";
     QFile file(filePath);
     QStringList lines;
 
@@ -84,12 +83,44 @@ QStringList CustomGameManeger::loadGameFromFile(const QString& title) const
 
 }
 
+bool CustomGameManeger::deleteGameFromFile(const QString& title)
+{
+    QString filePath = dirPath + title + ".txt";
+    if (QFile::exists(filePath)) {  // 先检查文件是否存在
+        if (QFile::remove(filePath)) {
+            qDebug() << "文件删除成功:" << filePath;
+            titles.removeOne(title);
+            if (!listFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+                qDebug() << "无法打开文件用于重写:" << filePath;
+                return false;
+            }
+
+            QTextStream out(&listFile);
+            for (const QString &title : titles) {
+                out << title << Qt::endl;  // 一行一个标题
+            }
+
+            listFile.close();
+            qDebug() << "标题列表文件重写完成:" << filePath;
+            return true;
+
+        } else {
+            qDebug() << "文件删除失败:" << filePath;
+            return false;
+        }
+    } else {
+        qDebug() << "文件不存在:" << filePath;
+        return false;
+    }
+}
+
+
 const QString& CustomGameManeger::getTitle(int i) const
 {
     return titles[i];
 }
 
-QVector<QString> CustomGameManeger::getallTitles() const
+const QStringList& CustomGameManeger::getallTitles() const
 {
     return titles;
 

@@ -1,7 +1,6 @@
 #ifndef CUSTOMGAMEMANEGER_H
 #define CUSTOMGAMEMANEGER_H
-#include <QString>
-#include <QVector>
+#include <QFile>
 class CustomGameManeger
 {
 public:
@@ -9,15 +8,20 @@ public:
 
     bool saveGameToFile(const QString& title, const QString& content);
 
-    QVector<QString> loadGameFromFile(const QString& title) const;
+    QStringList loadGameFromFile(const QString& title) const;
+
+    bool deleteGameFromFile(const QString& title) ;
 
     const QString& getTitle(int i) const;
 
-    QStringList getallTitles() const;
+    const QStringList& getallTitles() const;
 
 private:
-    CustomGameManeger();  // 私有化构造函数，确保只能通过 getInstance 获取实例
-    QVector<QString> titles;
+    CustomGameManeger();
+    QStringList titles;
+    QFile listFile;
+    QString dirPath;
+
     // 禁止拷贝构造和赋值操作
     CustomGameManeger(const CustomGameManeger&) = delete;
     void operator=(const CustomGameManeger&) = delete;

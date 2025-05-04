@@ -21,7 +21,11 @@ CustomPage::CustomPage(QWidget *parent)
     connect(ui->loadBtn, &QPushButton::clicked, [=](){
         emit loadBtnClicked();
     });
+    connect(ui->deleteBtn, &QPushButton::clicked, [=](){
+        emit deleteBtnClicked();
+    });
 }
+
 
 
 CustomPage::~CustomPage()

@@ -11,6 +11,8 @@ GamePageOne::GamePageOne(QWidget *parent)
     , logic(nullptr)
     , centralWidget(nullptr)
     , recordBar(nullptr)
+    , targetBar(nullptr)
+    , customBrowser(nullptr)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -26,7 +28,7 @@ GamePageOne::GamePageOne(QWidget *parent)
         }
         else
         {
-        emit mainBtnClicked(2);
+            emit mainBtnClicked(2);
         }
     });
 }
@@ -105,9 +107,14 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     {
         setTitle(ID);
         //初始化滑动框
+        if(customBrowser)
+        {
+            customBrowser->deleteLater();
+            customBrowser = nullptr;
+        }
         if(targetBar)
         {
-            delete targetBar;
+            targetBar->deleteLater();
             targetBar = nullptr;
         }
         QString targetText = LevelOriginAndAutor::getTargetText(ID);
@@ -116,15 +123,22 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     else
     {
         ui->label->hide();
+        if(customBrowser)
+        {
+            customBrowser->deleteLater();
+            customBrowser = nullptr;
+        }
+        if(targetBar)
+        {
+            targetBar->deleteLater();
+            targetBar = nullptr;
+        }
+        createCustomTargetDisplay(this, level.getElement());
     }
 
     initRecordSlidingSidebar();
-    // ——— 1. 清理旧逻辑和界面 ———
-    if (logic) {
-        delete logic;
-        logic = nullptr;
-    }
-    logic = new GameLogicOne(cols, rows, level.getElement());
+
+    logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
 
     if (centralWidget) {
         delete centralWidget;
@@ -167,7 +181,6 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
             connect(btn, &TileButton::clicked, this, [this, btn]() {
                 tryMove(btn->row(), btn->col());
             });
-
             tiles[index] = btn;
         }
     }
@@ -181,7 +194,7 @@ void GamePageOne::initRecordSlidingSidebar()
 {
     if(recordBar)
     {
-        delete recordBar;
+        recordBar->deleteLater();
         recordBar = nullptr;
     }
     recordBar = new SlidingSidebar(this,
@@ -301,9 +314,43 @@ void GamePageOne::youWin()
 
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
+void GamePageOne::createCustomTargetDisplay(QWidget* parent, const QStringList& targetList, const QRect& geometry)
+{
+
+    customBrowser = new QTextBrowser(parent);
+    customBrowser->setGeometry(geometry);
+
+    // 设置简洁适配的半透明浅黄色背景
+    QPalette palette = customBrowser->palette();
+    palette.setColor(QPalette::Base, QColor(241, 245, 202)); // 浅黄色 (LightYellow)，透明度180
+    palette.setColor(QPalette::Text, QColor(0, 0, 0));             // 黑色文字
+    customBrowser->setPalette(palette);
+
+    // 设置字体和样式
+    customBrowser->setStyleSheet(R"(
+        QTextBrowser {
+            border: 1px solid white;
+            border-radius: 8px;
+            padding: 8px;
+            font-family: "楷体";
+            font-size: 24px;
+            background-clip: padding;
+        }
+    )");
+
+    // 拼接内容 —— 每个目标之间空一格
+    QString content = "<b>目标顺序：</b><br><br>";
+    for (const QString& item : targetList) {
+        content += item + " ";
+    }
+
+    customBrowser->setText(content.trimmed());
+
+    customBrowser->setReadOnly(true);
+    customBrowser->show();
+}
 
 GamePageOne::~GamePageOne() {
-    delete logic;
     delete centralWidget;
     delete ui;
 }

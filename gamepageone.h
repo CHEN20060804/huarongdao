@@ -5,11 +5,13 @@
 #include <QVector>
 #include <QGridLayout>
 #include <QTimer>
+#include <QTextBrowser>
 #include "gamelogicone.h"
 #include "levelmaneger.h"
 #include "tilebutton.h"
 #include "slidingsidebar.h"
 #include "gamesessiondata.h"
+#include <memory>
 namespace Ui {
 class GamePageOne;
 }
@@ -32,10 +34,10 @@ private:
     void updateUI();
     void tryMove(int i, int j);
 
-    int m_buttonWidth;  // 新增成员变量存储按钮尺寸
-    int m_buttonHeight;
     Ui::GamePageOne *ui;
-    GameLogicOne* logic;
+    int m_buttonWidth;
+    int m_buttonHeight;
+    std::unique_ptr<GameLogicOne> logic;
     QWidget* centralWidget;
     QGridLayout* gridLayout;
     QVector<TileButton*> tiles;
@@ -45,6 +47,7 @@ private:
     QString currentSteps;
     SlidingSidebar* recordBar;
     SlidingSidebar* targetBar;
+    QTextBrowser* customBrowser;
     Level level;
     bool isCustom;
 
@@ -56,6 +59,8 @@ private:
     void stopRecord();
     void setTitle(int ID);
     void youWin();
+    void createCustomTargetDisplay(QWidget* parent, const QStringList& targetList, const QRect& geometry = {0, 152, 160, 250});
+
 };
 
 #endif // GAMEPAGEONE_H

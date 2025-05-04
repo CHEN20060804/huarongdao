@@ -13,8 +13,11 @@ SOURCES += \
     creatgamepage.cpp \
     customgamemaneger.cpp \
     custompage.cpp \
+    deletegamepage.cpp \
     gamelogicone.cpp \
     gamepageone.cpp \
+    gamepagetwo.cpp \
+    gamepagewithai.cpp \
     gamesessiondata.cpp \
     leveldata.cpp \
     levelmaneger.cpp \
@@ -24,6 +27,7 @@ SOURCES += \
     main.cpp \
     mainbutton.cpp \
     mainstackedwidget.cpp \
+    poptips.cpp \
     rankpage.cpp \
     settingpage.cpp \
     slidingsidebar.cpp \
@@ -35,8 +39,11 @@ HEADERS += \
     creatgamepage.h \
     customgamemaneger.h \
     custompage.h \
+    deletegamepage.h \
     gamelogicone.h \
     gamepageone.h \
+    gamepagetwo.h \
+    gamepagewithai.h \
     gamesessiondata.h \
     leveldata.h \
     levelmaneger.h \
@@ -45,6 +52,7 @@ HEADERS += \
     loadgamepage.h \
     mainbutton.h \
     mainstackedwidget.h \
+    poptips.h \
     rankpage.h \
     settingpage.h \
     slidingsidebar.h \
@@ -55,7 +63,10 @@ HEADERS += \
 FORMS += \
     creatgamepage.ui \
     custompage.ui \
+    deletegamepage.ui \
     gamepageone.ui \
+    gamepagetwo.ui \
+    gamepagewithai.ui \
     levelpage.ui \
     loadgamepage.ui \
     rankpage.ui \

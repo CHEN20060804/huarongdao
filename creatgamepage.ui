@@ -16,16 +16,16 @@
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>0</y>
-     <width>551</width>
+     <x>0</x>
+     <y>10</y>
+     <width>601</width>
      <height>391</height>
     </rect>
    </property>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>300</x>
       <y>40</y>
       <width>69</width>
       <height>19</height>
@@ -38,7 +38,7 @@
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>240</x>
       <y>70</y>
       <width>181</width>
       <height>27</height>
@@ -48,7 +48,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>273</x>
+      <x>303</x>
       <y>192</y>
       <width>69</width>
       <height>19</height>
@@ -61,7 +61,7 @@
    <widget class="QTextEdit" name="textEdit">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>210</x>
       <y>220</y>
       <width>251</width>
       <height>81</height>
@@ -71,9 +71,9 @@
    <widget class="MainButton" name="saveBtn">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>253</x>
       <y>320</y>
-      <width>100</width>
+      <width>160</width>
       <height>50</height>
      </rect>
     </property>
@@ -84,32 +84,32 @@
      </size>
     </property>
     <property name="text">
-     <string>保存</string>
+     <string/>
     </property>
    </widget>
    <widget class="MainButton" name="cancelBtn">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>320</y>
-      <width>100</width>
+      <x>520</x>
+      <y>20</y>
+      <width>50</width>
       <height>50</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>100</width>
+      <width>50</width>
       <height>50</height>
      </size>
     </property>
     <property name="text">
-     <string>取消</string>
+     <string/>
     </property>
    </widget>
    <widget class="QComboBox" name="comboBox">
     <property name="geometry">
      <rect>
-      <x>258</x>
+      <x>288</x>
       <y>160</y>
       <width>89</width>
       <height>27</height>
@@ -134,7 +134,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>223</x>
+      <x>253</x>
       <y>130</y>
       <width>171</width>
       <height>20</height>
@@ -147,22 +147,22 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>30</x>
       <y>20</y>
       <width>81</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>温馨提示</string>
+     <string>温馨提示：</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="textBrowser">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>50</y>
-      <width>151</width>
+      <width>153</width>
       <height>261</height>
      </rect>
     </property>
@@ -170,10 +170,9 @@
      <string notr="true">
     background-color: #3d3d3d;
     color: #073642;
-    font-size: 12px;
     border: 1px solid #586e75;
+    font: 9pt &quot;Segoe UI Variable&quot;;
     border-radius: 4px;
-   fnont-family: &quot;Segoe UI&quot;;
 
 
 </string>
@@ -185,14 +184,14 @@ p, li { white-space: pre-wrap; }
 hr { height: 1px; border-width: 0; }
 li.unchecked::marker { content: &quot;\2610&quot;; }
 li.checked::marker { content: &quot;\2612&quot;; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; color:#c2ffde;&quot;&gt;1.棋盘名称无法识别特殊字符（仅支持中文、字母、数字和 _.-）&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; color:#c2ffde;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; color:#c2ffde;&quot;&gt;2.棋盘内容无法识别空字符&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; color:#c2ffde;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; color:#c2ffde;&quot;&gt;3..请确保棋盘内容的有效元素个数为（&lt;/span&gt;&lt;span style=&quot; font-size:9pt; font-style:italic; color:#c2ffde;&quot;&gt;行数×列数-1 &lt;/span&gt;&lt;span style=&quot; font-size:9pt; color:#c2ffde;&quot;&gt;）&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt; color:#c2ffde;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt; color:#c2ffde;&quot;&gt;4.如需显示二位及以上数字或字母作为整体，请使用花括号（&lt;/span&gt;&lt;span style=&quot; font-size:9pt; font-weight:700; color:#c2ffde;&quot;&gt; { }&lt;/span&gt;&lt;span style=&quot; font-size:9pt; color:#c2ffde;&quot;&gt; ）包围，如：6789{10}{11} &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI Variable'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;（1）棋盘名称仅支持中文、字母、数字和_.-&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;（2）棋盘内容无法接受空字符&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;（3）请确保棋盘内容的有效元素个数为（&lt;/span&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; font-style:italic; color:#74ff89;&quot;&gt;行数×列数-1 &lt;/span&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;）&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt;（4）如需显示二位及以上数字或字母作为整体，请使用花括号（&lt;/span&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; font-weight:700; color:#74ff89;&quot;&gt; { }&lt;/span&gt;&lt;span style=&quot; font-family:'Microsoft YaHei UI'; font-size:12px; color:#74ff89;&quot;&gt; ）包围，如：6789{10}{11} &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
   </widget>
@@ -201,7 +200,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <customwidget>
    <class>MainButton</class>
    <extends>QPushButton</extends>
-   <header location="global">mainbutton.h</header>
+   <header>mainbutton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

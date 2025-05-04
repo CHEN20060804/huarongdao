@@ -6,14 +6,21 @@
 #include <QStandardPaths>
 #include <QMessageBox>
 #include "customgamemaneger.h"
+#include "poptips.h"
 CreatGamePage::CreatGamePage(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CreatGamePage)
 {
     ui->setupUi(this);
     setFixedSize(600, 400);
-    ui->saveBtn->setwh(100, 50);
-    ui->cancelBtn->setwh(100, 50);
+    ui->saveBtn->setwh(160, 50);
+    ui->saveBtn->setIcon(QIcon(":/video/res/save.png"));
+    ui->saveBtn->setIconSize(QSize(30, 30));
+
+    ui->cancelBtn->setwh(50, 50);
+    ui->cancelBtn->setIcon(QIcon(":/video/res/close.png"));
+    ui->cancelBtn->setIconSize(QSize(30, 30));
+
     connect(ui->saveBtn, &QPushButton::clicked, [=](){
         emit saveBtnClicked();
     });
@@ -21,7 +28,6 @@ CreatGamePage::CreatGamePage(QWidget *parent)
         emit cancelBtnClicked();
     });
 
-    //QApplication::setStyle("Fusion");
     QString styleSheet = R"(
     QLabel {
         font-family: 'Segoe UI', serif;
@@ -117,17 +123,6 @@ void CreatGamePage::paintEvent(QPaintEvent* event)
 
 bool CreatGamePage::saveCustomGame()
 {
-    auto showTip = [this](QWidget* widget, const QString& message) {
-        QLabel *tip = new QLabel(this);
-        tip->setText(message);
-        tip->setStyleSheet("background-color: black; color: white; border: 1px solid #ffa07a; padding: 5px; border-radius: 6px;");
-        tip->adjustSize();
-        tip->move(widget->x() + (widget->width() - tip->width()) / 2 + 20, widget->y() + widget->height() + 5);
-        tip->show();
-        QTimer::singleShot(3000, tip, &QLabel::deleteLater);
-        widget->setFocus();
-    };
-
     int h[9] = {3, 3, 3, 4, 4, 4, 5, 5, 6};
     int w[9] = {3, 4, 5, 4, 5, 6, 5, 6, 6};
     int selectedIndex = ui->comboBox->currentIndex();
@@ -135,45 +130,66 @@ bool CreatGamePage::saveCustomGame()
     int cols = w[selectedIndex];
 
     QString title = ui->lineEdit->text();
+    QStringList titleList = CustomGameManeger::getInstance()->getallTitles();
+    for(int i = 0; i < titleList.size(); i++)
+    {
+        if(title==titleList[i])
+        {
+            PopTips::Bad(this, ui->lineEdit, "已有该名称的棋盘");
+            return false;
+        }
+    }
     QRegularExpression re("^[\u4e00-\u9fa5a-zA-Z0-9._-]+$");
     if (!re.match(title).hasMatch()) {
-        showTip(ui->lineEdit, "标题名称不合法");
+        PopTips::Bad(this, ui->lineEdit, "标题名称不合法");
+        ui->lineEdit->selectAll();
+        return false;
+    }
+    if (title.size() > 32) {
+        PopTips::Bad(this, ui->lineEdit, "标题过长（最多32个字符）");
         ui->lineEdit->selectAll();
         return false;
     }
 
     QString content = ui->textEdit->toPlainText();
     if (content.contains(QRegularExpression("[\\x09\\x20\\x{3000}]"))) {
-        showTip(ui->textEdit, "棋盘内容不合法（不能包含空格或Tab）");
+        PopTips::Bad(this, ui->textEdit, "棋盘内容不合法（不能包含空格或Tab）");
+        return false;
+    }
+    if (content.trimmed().isEmpty()) {
+        PopTips::Bad(this, ui->textEdit, "棋盘内容不能为空");
         return false;
     }
 
+    QRegularExpression emojiRe("[\\x{10000}-\\x{10FFFF}]");//禁止表情符
+    if (content.contains(emojiRe)) {
+        PopTips::Bad(this, ui->textEdit, "棋盘内容不能包含表情符号");
+        return false;
+    }
 
     int realElementCount = 0;
     for (int i = 0; i < content.size(); ) {
         if (content[i] == '{') {
             int end = content.indexOf('}', i);
-            if (end != -1)
-            {
+            if (end != -1) {
                 QString inner = content.mid(i + 1, end - i - 1);
-                if (inner.isEmpty())
-                {
-                    showTip(ui->textEdit, "棋盘内容格式错误（空的 {} 不合法）");
+                if (inner.isEmpty()) {
+                    PopTips::Bad(this, ui->textEdit, "棋盘内容格式错误（空的 {} 不合法）");
                     return false;
                 }
-                if (inner.contains('{') || inner.contains('}'))
-                {
-                    showTip(ui->textEdit, "棋盘内容格式错误（不允许嵌套 {} ）");
+                if (inner.contains('{') || inner.contains('}')) {
+                    PopTips::Bad(this, ui->textEdit, "棋盘内容格式错误（不允许嵌套 {} ）");
                     return false;
                 }
                 realElementCount++;
                 i = end + 1;
-            }
-            else
-            {
-                showTip(ui->textEdit, "棋盘内容格式错误（缺少 } ）");
+            } else {
+                PopTips::Bad(this, ui->textEdit, "棋盘内容格式错误（缺少 } ）");
                 return false;
             }
+        } else if (content[i] == '}') {
+            PopTips::Bad(this, ui->textEdit, "棋盘内容格式错误（孤立的 } ）");
+            return false;
         } else {
             realElementCount++;
             ++i;
@@ -181,17 +197,19 @@ bool CreatGamePage::saveCustomGame()
     }
 
 
+
     if (realElementCount != rows * cols - 1) {
-        showTip(ui->textEdit, QString("棋盘元素数量错误（需要 %1 个元素）").arg(rows * cols - 1));
+        PopTips::Bad(this, ui->textEdit, QString("棋盘元素数量错误（目前元素：%1/%2）").arg(realElementCount).arg(rows * cols - 1));
         return false;
     }
 
     QString stream = QString::number(rows) + " " + QString::number(cols) + "\n" + content;
     if (!CustomGameManeger::getInstance()->saveGameToFile(title, stream))
     {
+        PopTips::Bad(this, ui->textEdit, "棋盘保存失败");
         return false;
     }
-
+    PopTips::Good(this, ui->textEdit, "棋盘保存成功");
     return true;
 }
 

@@ -18,6 +18,7 @@ signals:
     void mainBtnClicked(int i);
     void creatBtnClicked();
     void loadBtnClicked();
+    void deleteBtnClicked();
 private:
     Ui::CustomPage *ui;
 };
