@@ -18,6 +18,7 @@ public:
 
 private:
     CustomGameManeger();
+    ~CustomGameManeger();
     QStringList titles;
     QFile listFile;
     QString dirPath;

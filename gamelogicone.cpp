@@ -70,8 +70,15 @@ int GameLogicOne::getCols() const
 {
     return cols;
 }
-
+int GameLogicOne::getRows() const
+{
+    return rows;
+}
 QVector<QString> GameLogicOne::getBoard() const
 {
     return board;
+}
+void GameLogicOne::setOrder(const GameLogicOne& logic)
+{
+    board = logic.board;
 }

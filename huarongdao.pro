@@ -27,6 +27,7 @@ SOURCES += \
     main.cpp \
     mainbutton.cpp \
     mainstackedwidget.cpp \
+    man.cpp \
     poptips.cpp \
     rankpage.cpp \
     settingpage.cpp \
@@ -52,6 +53,7 @@ HEADERS += \
     loadgamepage.h \
     mainbutton.h \
     mainstackedwidget.h \
+    man.h \
     poptips.h \
     rankpage.h \
     settingpage.h \

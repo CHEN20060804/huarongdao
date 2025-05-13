@@ -12,6 +12,10 @@
 #include "slidingsidebar.h"
 #include "gamesessiondata.h"
 #include <memory>
+#include "man.h"
+
+
+
 namespace Ui {
 class GamePageOne;
 }

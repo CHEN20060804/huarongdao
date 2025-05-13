@@ -14,7 +14,8 @@ public:
     bool tryMove(int i, int j);
     bool isSolved() const;
     int getCols() const;
-
+    int getRows() const;
+    void setOrder(const GameLogicOne& logic);
     QVector<QString> getBoard() const;
 
 private:

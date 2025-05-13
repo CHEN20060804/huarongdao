@@ -125,4 +125,4 @@ const QStringList& CustomGameManeger::getallTitles() const
     return titles;
 
 }
-
+ CustomGameManeger::~CustomGameManeger() {};

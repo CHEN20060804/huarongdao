@@ -2,11 +2,17 @@
 #include "ui_gamepagewithai.h"
 #include "mainbutton.h"
 #include <QFrame>
+#include <QtMath>
+#include <climits>
+#include <QtAlgorithms>
+
 GamePageWithAI::GamePageWithAI(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::GamePageWithAI)
    , player(nullptr)
     , ai(nullptr)
+    ,playerWidget(nullptr)
+    ,AIWidget(nullptr)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -18,10 +24,21 @@ GamePageWithAI::GamePageWithAI(QWidget *parent)
         //resetRecord();
         emit mainBtnClicked(2);
     });
+
+    QFrame* dividerLine = new QFrame(this);
+    dividerLine->setFrameShape(QFrame::VLine);
+    dividerLine->setFrameShadow(QFrame::Sunken);     // 凹陷视觉
+    dividerLine->setLineWidth(2);                    // 线宽
+    dividerLine->setMidLineWidth(1);
+    dividerLine->setGeometry(850 / 2 - 1, 186, 2, 500);
+    dividerLine->show();
 }
 void GamePageWithAI::updateUI(Man* man) {
-    QVector<TileButton*> tiles = man->tiles;
+
+
+    QVector<TileButton*> tiles = man->getTiles();
     QVector<QString> board = player->logic->getBoard();
+
     for (int i = 0; i < board.size(); ++i) {
         if (TileButton* btn = tiles[i]) {
             QString val = board[i];
@@ -34,15 +51,6 @@ void GamePageWithAI::updateUI(Man* man) {
             }
         }
     }
-
-    QFrame* dividerLine = new QFrame(this);
-    dividerLine->setFrameShape(QFrame::VLine);
-    dividerLine->setFrameShadow(QFrame::Sunken);     // 凹陷视觉
-    dividerLine->setLineWidth(2);                    // 线宽
-    dividerLine->setMidLineWidth(1);
-    dividerLine->setGeometry(850 / 2 - 1, 186, 2, 500);
-    dividerLine->show();
-
 }
 
 void Player::tryMove(int i, int j) {
@@ -92,53 +100,53 @@ void Player::tryMove(int i, int j) {
     }
 }
 
-void AI::tryMove(int i, int j) {
-    QVector<QString> oldBoard = logic->getBoard(); // 保存旧状态
+// void AI::tryMove(int i, int j) {
+//     QVector<QString> oldBoard = logic->getBoard(); // 保存旧状态
 
-    if (logic->tryMove(i, j)) {
-        //updateStepdisplay();
-        //if(currentSteps=="1")startRecord(level);
-        QVector<QString> newBoard = logic->getBoard();
+//     if (logic->tryMove(i, j)) {
+//         //updateStepdisplay();
+//         //if(currentSteps=="1")startRecord(level);
+//         QVector<QString> newBoard = logic->getBoard();
 
-        // 查找移动的方块
-        int fromIndex = -1, toIndex = -1;
-        for (int i = 0; i < oldBoard.size(); ++i) {
-            if (!oldBoard[i].isEmpty() && newBoard[i].isEmpty())
-                fromIndex = i;
-            if (oldBoard[i].isEmpty() && !newBoard[i].isEmpty())
-                toIndex = i;
-        }
+//         // 查找移动的方块
+//         int fromIndex = -1, toIndex = -1;
+//         for (int i = 0; i < oldBoard.size(); ++i) {
+//             if (!oldBoard[i].isEmpty() && newBoard[i].isEmpty())
+//                 fromIndex = i;
+//             if (oldBoard[i].isEmpty() && !newBoard[i].isEmpty())
+//                 toIndex = i;
+//         }
 
-        if (fromIndex != -1 && toIndex != -1) {
-            TileButton* movedBtn = tiles[fromIndex];
+//         if (fromIndex != -1 && toIndex != -1) {
+//             TileButton* movedBtn = tiles[fromIndex];
 
-            // 计算目标位置
-            int toRow = toIndex / logic->getCols();
-            int toCol = toIndex % logic->getCols();
-            QPoint targetPos(
-                toCol * buttonWidth ,
-                toRow * buttonHeight
-                );
+//             // 计算目标位置
+//             int toRow = toIndex / logic->getCols();
+//             int toCol = toIndex % logic->getCols();
+//             QPoint targetPos(
+//                 toCol * buttonWidth ,
+//                 toRow * buttonHeight
+//                 );
 
-            // 创建动画
-            QPropertyAnimation* anim = new QPropertyAnimation(movedBtn, "pos");
-            anim->setDuration(200);
-            anim->setStartValue(movedBtn->pos());
-            anim->setEndValue(targetPos);
-            anim->start(QAbstractAnimation::DeleteWhenStopped);
+//             // 创建动画
+//             QPropertyAnimation* anim = new QPropertyAnimation(movedBtn, "pos");
+//             anim->setDuration(200);
+//             anim->setStartValue(movedBtn->pos());
+//             anim->setEndValue(targetPos);
+//             anim->start(QAbstractAnimation::DeleteWhenStopped);
 
-            // 更新按钮位置信息
-            movedBtn->setRowCol(toRow, toCol);
-            std::swap(tiles[fromIndex], tiles[toIndex]);
-        }
+//             // 更新按钮位置信息
+//             movedBtn->setRowCol(toRow, toCol);
+//             std::swap(tiles[fromIndex], tiles[toIndex]);
+//         }
 
-        if (logic->isSolved()) {
-            //stopRecord();
-            emit over(this);
+//         if (logic->isSolved()) {
+//             //stopRecord();
+//             emit over(this);
 
-        }
-    }
-}
+//         }
+//     }
+// }
 
 void GamePageWithAI::loadLevel(const Level& level) {
     this->level = level;
@@ -163,6 +171,7 @@ void GamePageWithAI::loadLevel(const Level& level) {
         delete ai;
         ai = nullptr;
     }
+    //qDebug() <<"lll";
 
     // 创建 playerWidget
     playerWidget = new QWidget(this);
@@ -173,7 +182,7 @@ void GamePageWithAI::loadLevel(const Level& level) {
             border: 10px solid rgba(0, 255, 0, 50);
         }
     )");
-    playerWidget->move(15, 200);  // 左边
+    playerWidget->move(50, 200);  // 左边
 
     // 创建 aiWidget
     AIWidget = new QWidget(this);
@@ -189,19 +198,16 @@ void GamePageWithAI::loadLevel(const Level& level) {
     player = new Player(this);
     ai = new AI(this);
 
+
     // 初始化棋盘
     player->initBoard(level, playerWidget);
     ai->initBoard(level, AIWidget);
-
+    player->logic->shuffle();
+    ai->logic->setOrder(*player->logic);
     // 调整 aiWidget 位置
     AIWidget->adjustSize();
-    int x = this->width() - 15 - AIWidget->width();
+    int x = this->width() - 50 - AIWidget->width();
     AIWidget->move(x, 200);
-
-    // 打乱棋盘（只打乱一次）
-    if (player->logic) {
-        player->logic->shuffle();
-    }
 
     // 绑定胜利信号
     connect(player, &Player::over, this, &GamePageWithAI::winEffect);
@@ -209,6 +215,7 @@ void GamePageWithAI::loadLevel(const Level& level) {
 
     // 更新 UI
     updateUI(player);
+    qDebug() << ai->tiles.size();
     updateUI(ai);
 
     playerWidget->show();
@@ -263,51 +270,8 @@ void Player::initBoard(const Level& level, QWidget* parent) {
         }
     }
 }
-void AI::initBoard(const Level& level, QWidget* parent) {
-    int cols = level.getw();
-    int rows = level.geth();
-    logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
 
-    // 清空旧控件
-    if (parent->layout()) {
-        QLayoutItem* item;
-        while ((item = parent->layout()->takeAt(0)) != nullptr) {
-            delete item->widget();
-            delete item;
-        }
-        delete parent->layout();
-    }
 
-    auto *outerLayout = new QVBoxLayout(parent);
-    outerLayout->setContentsMargins(10, 10, 10, 10);
-    outerLayout->setSpacing(0);
-
-    QWidget *boardBg = new QWidget(parent);
-    boardBg->setObjectName("boardBg");
-    boardBg->setStyleSheet("background-color: lightgray;");
-    outerLayout->addWidget(boardBg);
-
-    auto *grid = new QGridLayout(boardBg);
-    grid->setContentsMargins(0, 0, 0, 0);
-    grid->setSpacing(0);
-
-    buttonWidth  = 70 - (cols - 3) * 10;
-    buttonHeight = 70 - (rows - 3) * 10;
-    tiles.resize(rows * cols);
-
-    for (int row = 0; row < rows; ++row) {
-        for (int col = 0; col < cols; ++col) {
-            int index = row * cols + col;
-            auto *btn = new TileButton(boardBg, buttonWidth, buttonHeight);
-            grid->addWidget(btn, row, col);
-            btn->setRowCol(row, col);
-            connect(btn, &TileButton::clicked, parent, [this, btn]() {
-                tryMove(btn->row(), btn->col());
-            });
-            tiles[index] = btn;
-        }
-    }
-}
 
 // void GamePageWithAI::initRecordSlidingSidebar()
 // {
@@ -457,5 +421,94 @@ void GamePageWithAI::createCustomTargetDisplay(QWidget* parent, const QStringLis
 }
 
 GamePageWithAI::~GamePageWithAI() {
+    delete ai;
+    delete player;
     delete ui;
 }
+
+void AI::initBoard(const Level& level, QWidget* parent) {
+    int cols = level.getw();
+    int rows = level.geth();
+    qDebug() <<"c" << cols << " " << "r" << rows;
+
+
+    logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
+
+
+    targetBoard = level.getElement();
+
+    // clear old widgets
+    if (parent->layout()) {
+        QLayoutItem* item;
+        while ((item = parent->layout()->takeAt(0)) != nullptr) {
+            delete item->widget();
+            delete item;
+        }
+        delete parent->layout();
+    }
+
+    auto *outerLayout = new QVBoxLayout(parent);
+    outerLayout->setContentsMargins(10,10,10,10);
+    outerLayout->setSpacing(0);
+
+    QWidget* boardBg = new QWidget(parent);
+    boardBg->setObjectName("boardBg");
+    boardBg->setStyleSheet("background-color: lightgray;");
+    outerLayout->addWidget(boardBg);
+
+    auto *grid = new QGridLayout(boardBg);
+    grid->setContentsMargins(0,0,0,0);
+    grid->setSpacing(0);
+
+    buttonWidth  = 70 - (cols - 3) * 10;
+    buttonHeight = 70 - (rows - 3) * 10;
+    tiles.resize(rows * cols);
+    for (int r = 0; r < rows; ++r) {
+        for (int c = 0; c < cols; ++c) {
+            int idx = r * cols + c;
+            TileButton* btn = new TileButton(boardBg, buttonWidth, buttonHeight);
+            grid->addWidget(btn, r, c);
+            btn->setRowCol(r, c);
+            tiles[idx] = btn;
+        }
+    }
+
+    qDebug() << tiles.size();
+
+   qDebug() << "lll";
+
+}
+
+void AI::tryMove(int i, int j) {
+    qDebug() << "AI::tryMove got" << i << j;
+    QVector<QString> oldBoard = logic->getBoard();
+    if (!logic->tryMove(i, j)) return;
+
+    QVector<QString> newBoard = logic->getBoard();
+    int from = -1, to = -1;
+    for (int k = 0; k < oldBoard.size(); ++k) {
+        if (oldBoard[k].isEmpty() && !newBoard[k].isEmpty()) to = k;
+        if (!oldBoard[k].isEmpty() && newBoard[k].isEmpty()) from = k;
+    }
+
+    if (from >= 0 && to >= 0) {
+        TileButton* btn = tiles[from];
+        btn->raise();
+        int tr = to / logic->getCols(), tc = to % logic->getCols();
+        QPoint endP(tc * buttonWidth, tr * buttonHeight);
+        QPropertyAnimation* anim = new QPropertyAnimation(btn, "pos");
+        anim->setDuration(200);
+        anim->setStartValue(btn->pos());
+        anim->setEndValue(endP);
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
+        tiles.swapItemsAt(from, to);
+        tiles[to]->setRowCol(tr, tc);
+    }
+
+    // 刷新棋盘标签
+    for (int k = 0; k < tiles.size(); ++k) tiles[k]->setText(logic->getBoard()[k]);
+
+    if (logic->isSolved()) emit over(this);
+}
+
+

@@ -283,6 +283,7 @@ void Widget::loadCustomGame()
     else if(model==TWO)
     {
         changePage(5);
+        ui->gamepagetwo->loadLevel(level);
         dialog->close();
     }
     else

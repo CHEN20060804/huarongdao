@@ -13,6 +13,32 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>65</x>
+     <y>500</y>
+     <width>241</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>W S A D 切换选中格   F 移动选中格</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>575</x>
+     <y>500</y>
+     <width>281</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>↑ ↓ ← → 切换选中格   右Ctrl 移动选中格</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
