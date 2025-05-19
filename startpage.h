@@ -18,6 +18,7 @@ signals:
     void mainBtnClicked(int i);
     void closeBtnClicked();
     void settingBtnClicked();
+    void rankBtnClicked();
 protected:
     void paintEvent(QPaintEvent* ev) override;
 private:

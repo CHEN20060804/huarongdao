@@ -58,7 +58,7 @@ void TileButton::paintEvent(QPaintEvent* e) {
     QPen pen;
     if      (m_selected)  { pen.setWidth(2); pen.setColor(QColor("#3399FF")); }
     else if (m_empty)     { pen.setStyle(Qt::NoPen); }
-    else                  { pen.setWidth(1); pen.setColor(Qt::black); }
+    else                  { pen.setWidth(2); pen.setColor(Qt::black); }
     p.setPen(pen);
     p.drawRect(rect());
 

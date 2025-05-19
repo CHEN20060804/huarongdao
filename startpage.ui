@@ -44,7 +44,7 @@
     <enum>Qt::FocusPolicy::StrongFocus</enum>
    </property>
    <property name="text">
-    <string>排行榜</string>
+    <string>关卡最佳</string>
    </property>
   </widget>
   <widget class="MainButton" name="btnLevel">
@@ -75,7 +75,7 @@
     </size>
    </property>
    <property name="text">
-    <string>闯关模式</string>
+    <string>关卡模式</string>
    </property>
   </widget>
   <widget class="MainButton" name="btnCustom">

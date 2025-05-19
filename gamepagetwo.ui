@@ -18,12 +18,12 @@
     <rect>
      <x>65</x>
      <y>500</y>
-     <width>241</width>
+     <width>281</width>
      <height>19</height>
     </rect>
    </property>
    <property name="text">
-    <string>W S A D 切换选中格   F 移动选中格</string>
+    <string>W S A D键 切换选中格   F键 移动选中格</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -36,7 +36,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>↑ ↓ ← → 切换选中格   右Ctrl 移动选中格</string>
+    <string>↑ ↓ ← →键 切换选中格   ?/ 键 移动选中格</string>
    </property>
   </widget>
  </widget>

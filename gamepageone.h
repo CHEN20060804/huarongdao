@@ -13,7 +13,7 @@
 #include "gamesessiondata.h"
 #include <memory>
 #include "man.h"
-
+#include "difficultylabel.h"
 
 
 namespace Ui {
@@ -54,6 +54,8 @@ private:
     QTextBrowser* customBrowser;
     Level level;
     bool isCustom;
+    double hardness;
+    DifficultyLabel* difficultyBar;
 
     void initRecordSlidingSidebar();
     void showTargetText(const QString& text);

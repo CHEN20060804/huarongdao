@@ -12,6 +12,7 @@ GamePageTwo::GamePageTwo(QWidget *parent)
     ,playerR(nullptr)
     ,widgetL(nullptr)
     ,widgetR(nullptr)
+    ,isHandleKey(false)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -19,7 +20,27 @@ GamePageTwo::GamePageTwo(QWidget *parent)
     backBtn->move(50, 30);
     backBtn->setIcon(QIcon(":/video/res/back.png"));
     backBtn->setIconSize(QSize(30, 30));
+
+
+    MainButton* reloadBtn = new MainButton(this, 50, 50);
+    reloadBtn->move(150, 30);
+    reloadBtn->setIcon(QIcon(":/video/res/reload.png"));
+    reloadBtn->setIconSize(QSize(30, 30));
+
+    connect(reloadBtn, &QPushButton::clicked, [=](){
+        playerL->resetRecord();
+        playerR->resetRecord();
+        playerL->recordBar->setParent(widgetL);
+        playerR->recordBar->setParent(widgetR);
+        loadLevel(level);
+    });
+
     connect(backBtn, &QPushButton::clicked, [=]{
+        playerL->resetRecord();
+        playerR->resetRecord();
+        playerL->recordBar->setParent(widgetL);
+        playerR->recordBar->setParent(widgetR);
+        isHandleKey = false;
         emit mainBtnClicked(2);
     });
     QFrame* dividerLine = new QFrame(this);
@@ -59,40 +80,43 @@ void GamePageTwo::triggerSelected(const QPair<int, int>& pos, Player2* player) {
         emit player->getOneTile(pos)->triggered();
 }
 void GamePageTwo::keyPressEvent(QKeyEvent *event) {
-    switch (event->key()) {
-    // 玩家1控制左边棋盘
-    case Qt::Key_W:
-        if (!playerL->isAnimating) moveSelection(*selectedL, -1, 0, playerL);
-        break;
-    case Qt::Key_S:
-        if (!playerL->isAnimating) moveSelection(*selectedL, 1, 0, playerL);
-        break;
-    case Qt::Key_A:
-        if (!playerL->isAnimating) moveSelection(*selectedL, 0, -1, playerL);
-        break;
-    case Qt::Key_D:
-        if (!playerL->isAnimating) moveSelection(*selectedL, 0, 1, playerL);
-        break;
-    case Qt::Key_F:
-        if (!playerL->isAnimating) triggerSelected(*selectedL, playerL);
-        break;
+    if(isHandleKey)
+    {
+        switch (event->key()) {
+        // 玩家1控制左边棋盘
+        case Qt::Key_W:
+            if (!playerL->isAnimating) moveSelection(*selectedL, -1, 0, playerL);
+            break;
+        case Qt::Key_S:
+            if (!playerL->isAnimating) moveSelection(*selectedL, 1, 0, playerL);
+            break;
+        case Qt::Key_A:
+            if (!playerL->isAnimating) moveSelection(*selectedL, 0, -1, playerL);
+            break;
+        case Qt::Key_D:
+            if (!playerL->isAnimating) moveSelection(*selectedL, 0, 1, playerL);
+            break;
+        case Qt::Key_F:
+            if (!playerL->isAnimating) triggerSelected(*selectedL, playerL);
+            break;
 
-        // 玩家2控制右边棋盘
-    case Qt::Key_Up:
-        if (!playerR->isAnimating) moveSelection(*selectedR, -1, 0, playerR);
-        break;
-    case Qt::Key_Down:
-        if (!playerR->isAnimating) moveSelection(*selectedR, 1, 0, playerR);
-        break;
-    case Qt::Key_Left:
-        if (!playerR->isAnimating) moveSelection(*selectedR, 0, -1, playerR);
-        break;
-    case Qt::Key_Right:
-        if (!playerR->isAnimating) moveSelection(*selectedR, 0, 1, playerR);
-        break;
-    case Qt::Key_Control:
-        if (!playerR->isAnimating) triggerSelected(*selectedR, playerR);
-        break;
+            // 玩家2控制右边棋盘
+        case Qt::Key_Up:
+            if (!playerR->isAnimating) moveSelection(*selectedR, -1, 0, playerR);
+            break;
+        case Qt::Key_Down:
+            if (!playerR->isAnimating) moveSelection(*selectedR, 1, 0, playerR);
+            break;
+        case Qt::Key_Left:
+            if (!playerR->isAnimating) moveSelection(*selectedR, 0, -1, playerR);
+            break;
+        case Qt::Key_Right:
+            if (!playerR->isAnimating) moveSelection(*selectedR, 0, 1, playerR);
+            break;
+        case Qt::Key_Slash:
+            if (!playerR->isAnimating) triggerSelected(*selectedR, playerR);
+            break;
+        }
     }
 }
 
@@ -100,6 +124,7 @@ void GamePageTwo::keyPressEvent(QKeyEvent *event) {
 void GamePageTwo::loadLevel(const Level& level) {
 
     this->level = level;
+    isHandleKey = true;
     // 显示目标字符
     createCustomTargetDisplay(this, level.getElement());
 
@@ -143,10 +168,10 @@ void GamePageTwo::loadLevel(const Level& level) {
         }
     )");
 
+
     // 创建新对象
     playerL = new Player2(this);
     playerR = new Player2(this);
-
 
     // 初始化棋盘
     playerL->initBoard(level, widgetL);
@@ -164,13 +189,15 @@ void GamePageTwo::loadLevel(const Level& level) {
     selectedR = playerR->selected;
 
 
+    playerL->initRecordSlidingSidebar(QPoint(0, 90), SlidingSidebar::SlideLeft, this);
+    playerR->initRecordSlidingSidebar(QPoint(width() - 200, 90), SlidingSidebar::SlideRight, this);
+
     // 绑定胜利信号
     connect(playerL, &Player2::over, this, &GamePageTwo::winEffect);
     connect(playerR, &Player2::over, this, &GamePageTwo::winEffect);
 
-    // 更新 UI
-    updateUI(playerR);
     updateUI(playerL);
+    updateUI(playerR);
 
     playerL->getOneTile(*selectedL)->setSelected(true);
     playerR->getOneTile(*selectedR)->setSelected(true);
@@ -231,7 +258,8 @@ void Player2::tryMove(int i, int j) {
     QVector<QString> oldBoard = logic->getBoard();
     if (!logic->tryMove(i, j)) return;
     QVector<QString> newBoard = logic->getBoard();
-
+    updateStepdisplay();
+    if(session.getSteps() == 1) startRecord();
     int fromIndex = -1, toIndex = -1;
     for (int k = 0; k < oldBoard.size(); ++k) {
         if (!oldBoard[k].isEmpty() && newBoard[k].isEmpty()) fromIndex = k;
@@ -292,6 +320,7 @@ void Player2::tryMove(int i, int j) {
         isAnimating = false;
 
         if (logic->isSolved()) {
+            stopRecord();
             emit over(this);
         }
     });
@@ -309,22 +338,29 @@ TileButton* Player2::getOneTile(QPair<int, int> pos) {
 }
 
 void GamePageTwo::updateUI(Man* man) {
-    QVector<TileButton*> tiles = man->getTiles();
+       qDebug() << "updateUI called";  // 调试输出
+    if (!man) {
+        qDebug() << "Error: man is nullptr!";
+        return;
+    }
+    qDebug() << man;
+    QVector<TileButton*> tiles = man -> getTiles();
+     qDebug() << "tiles size:" << tiles.size();
     QVector<QString> board = playerL->logic->getBoard();
     for (int i = 0; i < board.size(); ++i) {
-        if (TileButton* btn = tiles[i]) {
             QString val = board[i];
             bool isEmpty = val.trimmed().isEmpty();
-            btn->setEmpty(isEmpty);
-            btn->setText(val);
+            tiles[i]->setEmpty(isEmpty);
+            tiles[i]->setText(val);
            // btn->setSelected(false);
-        }
+            tiles[i] ->show();
     }
     update();
-
 }
+
 void GamePageTwo::winEffect(Man* man)
 {
+
     QVector<TileButton*> tiles;
     QWidget* widget;
     if( man == playerL)

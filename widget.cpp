@@ -43,6 +43,8 @@ Widget::Widget(QWidget *parent)
     //处理页面切换和弹窗
     connect(ui->startpage, &StartPage::mainBtnClicked, this, &Widget::changePage);
 
+    connect(ui->startpage, &StartPage::rankBtnClicked, this, &Widget::showRank);
+
     connect(ui->levelpage, &LevelPage::mainBtnClicked, this, &Widget::changePage);
 
     connect(ui->levelpage, &LevelPage::levelSelected, this, &Widget::initGame);
@@ -332,7 +334,11 @@ void Widget::initGame(int page, int index)
     ui->gamepageone->loadLevel(level, false);
 }
 
-
+void Widget::showRank()
+{
+    changePage(3);
+    ui->rankpage->showRecord();
+}
 
 Widget::~Widget()
 {

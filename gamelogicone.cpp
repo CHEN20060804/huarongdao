@@ -10,8 +10,6 @@ GameLogicOne::GameLogicOne(int cols, int rows, const QVector<QString>& initBoard
 }
 // 检查拼图是否可解
 bool GameLogicOne::isSolvable(const QVector<int>& order) const {
-    Q_ASSERT(order.size() == rows * cols);
-    Q_ASSERT(order.last() == (rows * cols - 1)); // 空格在最后
 
     int inv = 0;
     for (int i = 0; i < order.size() - 1; ++i) {
@@ -44,7 +42,10 @@ void GameLogicOne::shuffle() {
 
     for (int i = 0; i < order.size(); ++i)
         board[i] = target[order[i]];
+
+    begin = board;
 }
+
 
 bool GameLogicOne::tryMove(int i, int j)
 {
@@ -78,6 +79,55 @@ QVector<QString> GameLogicOne::getBoard() const
 {
     return board;
 }
+
+double GameLogicOne::computeDifficulty() const
+{
+    auto getManhattan = [&](int idx1, int idx2){
+        int row1 = idx1 / cols;
+        int col1 = idx1 % cols;
+        int row2 = idx2 / cols;
+        int col2 = idx2 % cols;
+        return std::abs(row1 - row2) + std::abs(col1 - col2);
+    };
+
+    int total = rows * cols;
+    double totalDistance = 0.0;
+    int maxDistance = 0;
+
+    for (int i = 0; i < total; ++i)
+    {
+        const QString& tile = begin[i];
+        if (tile == "") continue;
+
+        int targetIndex = -1;
+        for (int j = 0; j < total; ++j)
+        {
+            if (target[j] == tile) {
+                bool alreadyMatched = false;
+                for (int k = 0; k < i; ++k) {
+                    if (begin[k] == tile && getManhattan(k, j) == 0) {
+                        alreadyMatched = true;
+                        break;
+                    }
+                }
+                if (!alreadyMatched) {
+                    targetIndex = j;
+                    break;
+                }
+            }
+        }
+
+        if (targetIndex != -1) {
+            totalDistance += getManhattan(i, targetIndex);
+        }
+    }
+
+    maxDistance = (rows + cols - 2) * (total - 1); // 除去空格
+
+    double difficulty = totalDistance / maxDistance;
+    return std::round(difficulty * 1000) / 1000.0; // 保留三位小数
+}
+
 void GameLogicOne::setOrder(const GameLogicOne& logic)
 {
     board = logic.board;

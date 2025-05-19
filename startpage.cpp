@@ -43,7 +43,7 @@ StartPage::StartPage(QWidget *parent)
     });
 
     connect(ui->btnRank,&QPushButton::clicked, [=](){
-        emit mainBtnClicked(3);
+        emit rankBtnClicked();
     });
 
     connect(exitBtn,&QPushButton::clicked, [=](){

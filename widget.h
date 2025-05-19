@@ -55,6 +55,7 @@ private slots:
     void saveCustomGame();
     void loadCustomGame();
     void deleteCustomGame();
+    void showRank();
 private:
     Ui::Widget *ui;
     QTimer *timer; // 定时器，用于定期更新动画

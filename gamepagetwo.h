@@ -52,6 +52,7 @@ private:
     QWidget* widgetL;
     std::shared_ptr<QPair<int, int>> selectedL;
     std::shared_ptr<QPair<int, int>> selectedR;
+    bool isHandleKey;
 
     void winEffect(Man* man);
     void updateUI(Man* man);

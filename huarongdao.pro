@@ -14,6 +14,8 @@ SOURCES += \
     customgamemaneger.cpp \
     custompage.cpp \
     deletegamepage.cpp \
+    difficultylabel.cpp \
+    fancytablewidget.cpp \
     gamelogicone.cpp \
     gamepageone.cpp \
     gamepagetwo.cpp \
@@ -29,6 +31,7 @@ SOURCES += \
     mainstackedwidget.cpp \
     man.cpp \
     poptips.cpp \
+    rankmanager.cpp \
     rankpage.cpp \
     settingpage.cpp \
     slidingsidebar.cpp \
@@ -41,6 +44,8 @@ HEADERS += \
     customgamemaneger.h \
     custompage.h \
     deletegamepage.h \
+    difficultylabel.h \
+    fancytablewidget.h \
     gamelogicone.h \
     gamepageone.h \
     gamepagetwo.h \
@@ -55,6 +60,7 @@ HEADERS += \
     mainstackedwidget.h \
     man.h \
     poptips.h \
+    rankmanager.h \
     rankpage.h \
     settingpage.h \
     slidingsidebar.h \

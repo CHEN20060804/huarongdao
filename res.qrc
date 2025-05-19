@@ -22,5 +22,6 @@
         <file>res/delete.png</file>
         <file>res/loading.png</file>
         <file>res/save.png</file>
+        <file>res/reload.png</file>
     </qresource>
 </RCC>

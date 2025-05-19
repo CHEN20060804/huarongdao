@@ -17,9 +17,11 @@ public:
     int getRows() const;
     void setOrder(const GameLogicOne& logic);
     QVector<QString> getBoard() const;
+    double computeDifficulty() const;
 
 private:
     int rows, cols;
+    QVector<QString> begin;
     QVector<QString> board;
     QVector<QString> target;
     int emptyIndex; // 空格的索引

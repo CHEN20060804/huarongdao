@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QScreen>
 #include <QDebug>
+#include "rankmanager.h"
 GamePageOne::GamePageOne(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::GamePageOne)
@@ -13,6 +14,8 @@ GamePageOne::GamePageOne(QWidget *parent)
     , recordBar(nullptr)
     , targetBar(nullptr)
     , customBrowser(nullptr)
+    ,gameTimer(nullptr)
+    ,difficultyBar(nullptr)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -20,6 +23,12 @@ GamePageOne::GamePageOne(QWidget *parent)
     backBtn->move(50, 30);
     backBtn->setIcon(QIcon(":/video/res/back.png"));
     backBtn->setIconSize(QSize(30, 30));
+
+    MainButton* reloadBtn = new MainButton(this, 50, 50);
+    reloadBtn->move(150, 30);
+    reloadBtn->setIcon(QIcon(":/video/res/reload.png"));
+    reloadBtn->setIconSize(QSize(30, 30));
+
     connect(backBtn, &QPushButton::clicked, [=](){
         resetRecord();
         if(isCustom==false)
@@ -30,6 +39,11 @@ GamePageOne::GamePageOne(QWidget *parent)
         {
             emit mainBtnClicked(2);
         }
+    });
+
+    connect(reloadBtn, &QPushButton::clicked, [=](){
+        resetRecord();
+        loadLevel(level, isCustom);
     });
 }
 
@@ -92,6 +106,12 @@ void GamePageOne::tryMove(int i, int j) {
         if (logic->isSolved()) {
             stopRecord();
             youWin();//胜利效果
+            if(!isCustom)
+            {
+                session.setDifficult(hardness);
+                RankManager::getInstance()->writeRecord(session);
+                qDebug() << "ok";
+            }
         }
     }
 }
@@ -141,7 +161,7 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
 
     if (centralWidget) {
-        delete centralWidget;
+        centralWidget->deleteLater();
         centralWidget = nullptr;
     }
 
@@ -155,14 +175,17 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     )");
     centralWidget->move(300 - (cols - 3) * 10, 150);
 
+
     auto *outerLayout = new QVBoxLayout(centralWidget);
     outerLayout->setContentsMargins(10, 10, 10, 10);
     outerLayout->setSpacing(0);
+
 
     QWidget *boardBg = new QWidget(centralWidget);
     boardBg->setObjectName("boardBg");
     boardBg->setStyleSheet("background-color: lightgray;");  // 棋盘底色
     outerLayout->addWidget(boardBg);
+
 
     auto *grid = new QGridLayout(boardBg);
     grid->setContentsMargins(0, 0, 0, 0);
@@ -171,6 +194,7 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     m_buttonWidth  = 80 - (cols - 3) * 10;
     m_buttonHeight = 80 - (rows - 3) * 10;
     tiles.resize(rows * cols);
+
 
     for (int row = 0; row < rows; ++row) {
         for (int col = 0; col < cols; ++col) {
@@ -186,7 +210,20 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     }
 
     logic->shuffle();
+    hardness = logic->computeDifficulty();
+    qDebug() << hardness;
+
+    if(difficultyBar)
+    {
+        difficultyBar->deleteLater();
+        difficultyBar = nullptr;
+    }
+    difficultyBar = new DifficultyLabel(this, 0, 100);
+    difficultyBar->setDifficulty(hardness);
+    difficultyBar->show();
+
     updateUI();
+
     centralWidget->show();
 }
 
@@ -275,8 +312,8 @@ void GamePageOne::resetRecord()
 void GamePageOne::stopRecord()
 {
     gameTimer->stop();
-    double seconds = session.getElapsedSeconds();
-    currentSeconds = QString::number(seconds, 'f', 1);
+    session.stop();
+
 }
 
 void GamePageOne::setTitle(int ID)

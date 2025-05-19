@@ -1,8 +1,8 @@
 #include "man.h"
-
-void Man::startRecord(Level level)
+#include "slidingsidebar.h"
+void Man::startRecord()
 {
-    session = GameSessionData(level.getId());
+    session = GameSessionData();
     session.start();
     if(!gameTimer)
     {
@@ -48,26 +48,23 @@ void Man::stopRecord()
     QString currentSeconds = QString::number(seconds, 'f', 1);
 }
 
-void Man::initRecordSlidingSidebar()
+void Man::initRecordSlidingSidebar(QPoint point, SlidingSidebar::SlideDirection direction, QWidget* parent)
 {
     if(recordBar)
     {
         recordBar->deleteLater();
         recordBar = nullptr;
     }
-
-    // recordBar = new SlidingSidebar(this,
-    //                                200,                     // 宽度
-    //                                80,                     // 高度
-    //                                QPoint(0 , 50), // 初始位置
-    //                                "#FFF0F5",               // 背景颜色
-    //                                "楷体",                  // 字体
-    //                                16,                      // 字号
-    //                                5,
-    //                                SlidingSidebar::SlideRight); // 向右收起
-
-    recordBar = new SlidingSidebar();
-
+    qDebug() << "new";
+    recordBar = new SlidingSidebar(parent,
+                                   200,                     // 宽度
+                                   80,                     // 高度
+                                   point, // 初始位置
+                                   "#FFF0F5",               // 背景颜色
+                                   "楷体",                  // 字体
+                                   16,                      // 字号
+                                   5,
+                                   direction);
     if(gameTimer)
     {
         delete gameTimer;
@@ -79,7 +76,10 @@ void Man::initRecordSlidingSidebar()
 }
 
 
-QVector<TileButton*> Man::getTiles()
-{
+QVector<TileButton*> Man::getTiles() {
     return tiles;
+}
+
+Man::~Man()
+{
 }
