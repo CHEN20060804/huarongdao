@@ -8,13 +8,15 @@ SettingPage::SettingPage(QWidget *parent)
     setFixedSize(600, 400);
 
     // 设置样式
-    setStyleSheet(R"(
-        QWidget {
-            background-color: #1e1e1e;
-            border: 2px solid #2a6cf6;
-            border-radius: 15px;
-        }
-    )");
+    this->setObjectName("myCustomPanel");
+    this->setStyleSheet(R"(
+    #myCustomPanel {
+        background-color: #1e1e1e;
+        border: 2px solid #2a6cf6;
+        border-radius: 15px;
+    }
+)");
+
     setAttribute(Qt::WA_StyledBackground, true);
 
     // 设置按钮尺寸

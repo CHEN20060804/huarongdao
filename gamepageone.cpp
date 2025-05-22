@@ -6,6 +6,7 @@
 #include <QScreen>
 #include <QDebug>
 #include "rankmanager.h"
+#include "poptips.h"
 GamePageOne::GamePageOne(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::GamePageOne)
@@ -110,6 +111,7 @@ void GamePageOne::tryMove(int i, int j) {
             {
                 session.setDifficult(hardness);
                 RankManager::getInstance()->writeRecord(session);
+                PopTips::GoodCenter(this, "您创造了本关卡的新纪录");
                 qDebug() << "ok";
             }
         }

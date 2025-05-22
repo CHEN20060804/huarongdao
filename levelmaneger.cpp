@@ -3,10 +3,10 @@
 LevelManeger::LevelManeger() {
     size = 20;
     levels.resize(size);
-    levels[0].initLevel(3, 3, "我有嘉宾鼓瑟吹笙");
+    levels[0].initLevel(3, 3, "清风徐来水波不兴");
     levels[1].initLevel(3, 3, "锲而不舍金石可镂");
     levels[2].initLevel(3, 3, "桃李不言下自成蹊");
-    levels[3].initLevel(3, 3, "清风徐来水波不兴");
+    levels[3].initLevel(3, 3, "明明如月何时可掇");
     levels[4].initLevel(5, 3, "此时相望不相闻愿逐月华流照君");
     levels[5].initLevel(5, 3, "何须浅碧深红色自是花中第一流");
     levels[6].initLevel(5, 3, "江山如此多娇引无数英雄竞折腰");

@@ -8,6 +8,7 @@
 #include "gamesessiondata.h"
 #include <QPair>
 #include <memory>
+#include "difficultylabel.h"
 namespace Ui {
 class GamePageTwo;
 }
@@ -53,6 +54,8 @@ private:
     std::shared_ptr<QPair<int, int>> selectedL;
     std::shared_ptr<QPair<int, int>> selectedR;
     bool isHandleKey;
+    DifficultyLabel* difficultyBar;
+    double hardness;
 
     void winEffect(Man* man);
     void updateUI(Man* man);

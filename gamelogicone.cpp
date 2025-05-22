@@ -42,6 +42,7 @@ void GameLogicOne::shuffle() {
 
     for (int i = 0; i < order.size(); ++i)
         board[i] = target[order[i]];
+    qDebug() << order;
 
     begin = board;
 }
@@ -56,6 +57,7 @@ bool GameLogicOne::tryMove(int i, int j)
         int neighborIndex = ni * cols + nj;
         if (ni >= 0 && ni < rows && nj >= 0 && nj < cols && board[neighborIndex] == "") {
             std::swap(board[currentIndex], board[neighborIndex]);
+            qDebug() << board;
             return true;
         }
     }

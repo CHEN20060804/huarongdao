@@ -33,6 +33,7 @@ SOURCES += \
     poptips.cpp \
     rankmanager.cpp \
     rankpage.cpp \
+    settingmanager.cpp \
     settingpage.cpp \
     slidingsidebar.cpp \
     startpage.cpp \
@@ -62,6 +63,7 @@ HEADERS += \
     poptips.h \
     rankmanager.h \
     rankpage.h \
+    settingmanager.h \
     settingpage.h \
     slidingsidebar.h \
     startpage.h \

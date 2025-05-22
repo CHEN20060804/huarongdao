@@ -13,6 +13,7 @@ GamePageTwo::GamePageTwo(QWidget *parent)
     ,widgetL(nullptr)
     ,widgetR(nullptr)
     ,isHandleKey(false)
+    ,difficultyBar(nullptr)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -198,6 +199,16 @@ void GamePageTwo::loadLevel(const Level& level) {
 
     updateUI(playerL);
     updateUI(playerR);
+
+    hardness = playerL->logic->computeDifficulty();
+    if(difficultyBar)
+    {
+        difficultyBar->deleteLater();
+        difficultyBar = nullptr;
+    }
+    difficultyBar = new DifficultyLabel(this, width()-150, 30);
+    difficultyBar->setDifficulty(hardness);
+    difficultyBar->show();
 
     playerL->getOneTile(*selectedL)->setSelected(true);
     playerR->getOneTile(*selectedR)->setSelected(true);
