@@ -42,7 +42,6 @@ void PopTips::Bad(QWidget* parent, QWidget* anchorWidget, const QString& message
 }
 void PopTips::GoodCenter(QWidget* parent, const QString& message)
 {
-    // 如果前一个 Tip 存在，手动销毁
     if (currentTip) {
         currentTip->deleteLater();
         currentTip = nullptr;

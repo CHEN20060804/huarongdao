@@ -3,6 +3,7 @@
 
 #include <QStackedWidget>
 #include <widget.h>
+#include "RGB.h"
 class MainStackedWidget : public QStackedWidget
 {
     Q_OBJECT
@@ -23,5 +24,6 @@ private:
     QList<RippleEffect> rippleEffects; // 存储水波纹效果
     int maxTrailLength = 80; // 限制拖尾最大长度，防止过长
     int rippleMaxSize = 100; // 增加水波纹的最大扩散范围
+    RGB rgb;
 };
 #endif // MAINSTACKEDWIDGET_H

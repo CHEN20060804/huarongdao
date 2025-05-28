@@ -53,7 +53,6 @@ GamePageTwo::GamePageTwo(QWidget *parent)
     dividerLine->show();
 
     setFocusPolicy(Qt::StrongFocus);
-    this->grabKeyboard();
     setFocus();
 }
 
@@ -154,7 +153,7 @@ void GamePageTwo::loadLevel(const Level& level) {
     widgetL->setStyleSheet(R"(
         #playerFrame {
             background: transparent;
-            border: 10px solid rgba(0, 255, 0, 50);
+            border: 10px solid rgba(0, 155, 0, 50);
         }
     )");
     widgetL->move(50, 200);  // 左边

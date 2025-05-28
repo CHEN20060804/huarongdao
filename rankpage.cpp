@@ -27,11 +27,23 @@ RankPage::RankPage(QWidget *parent)
     table->setGeometry(125, 100, 600, 400);
     table->setHorizontalHeaderLabels({"关卡", "用时（s）", "步数", "难度系数", "日期"});
 
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
     for (int row = 0; row < table->rowCount(); ++row) {
         auto *item = new QTableWidgetItem(QString::number(row + 1));
         item->setTextAlignment(Qt::AlignCenter);  // 居中
         table->setItem(row, 0, item);
     }
+
+    ui->textBrowser->setFocusPolicy(Qt::NoFocus);
+    ui->textBrowser->setStyleSheet(R"(
+    background-color: #2e2e2e;
+    color: white;
+    border: none;
+    font-family: '楷体';
+)");
+
+
 }
 
 void RankPage::showRecord()
@@ -68,6 +80,7 @@ void RankPage::showRecord()
         item4->setTextAlignment(Qt::AlignCenter);
         table->setItem(i, 4, item4);
     }
+
 }
 
 RankPage::~RankPage()

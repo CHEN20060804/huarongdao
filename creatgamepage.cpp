@@ -36,13 +36,39 @@ CreatGamePage::CreatGamePage(QWidget *parent)
         color: white;
     }
 
-    QLineEdit, QTextEdit , QComboBox{
+    QLineEdit, QTextEdit {
         background-color: #444444;
         border: 1px solid #555555;
         border-radius: 5px;
         padding: 5px;
         color: white;
         font-size: 14px;
+    }
+
+    QComboBox {
+        background-color: #444444;
+        border: 1px solid #555555;
+        border-radius: 5px;
+        padding: 5px;
+        color: white;
+        font-size: 14px;
+    }
+
+    QComboBox QAbstractItemView {
+        background-color: #444444;
+        color: white;
+        font-size: 14px;
+        border: none;
+        outline: 0;
+    }
+
+    QComboBox QAbstractItemView::item:hover {
+        background-color: #555555;
+    }
+
+    QComboBox QAbstractItemView::item:selected {
+        background-color: #666666;
+        color: white;
     }
 
     QLineEdit {
@@ -76,15 +102,8 @@ CreatGamePage::CreatGamePage(QWidget *parent)
         border-radius: 5px;
     }
 )";
+
     setStyleSheet(styleSheet);
-
-    // 加阴影效果
-    QGraphicsDropShadowEffect* glow = new QGraphicsDropShadowEffect(this);
-    glow->setBlurRadius(50);  // 越大越柔和
-    glow->setOffset(0, 0);    // 向四周发散
-    glow->setColor(QColor(42, 108, 246, 180));  //制造蓝光晕
-    this->setGraphicsEffect(glow);
-
 
     ui->comboBox->addItem("3×3");
     ui->comboBox->addItem("3×4");
@@ -113,8 +132,8 @@ void CreatGamePage::paintEvent(QPaintEvent* event)
     painter.setPen(Qt::NoPen);  // 不绘制边框
     painter.drawRoundedRect(rect(), 15, 15);  // 绘制圆角背景
 
-    // 绘制蓝色圆角边框
-    QPen pen(QColor(42, 108, 246));  // 蓝色边框
+    QPen pen(QColor(246, 246, 246));  // 蓝色边框
+
     pen.setWidth(2);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);  // 不填充，只有边框

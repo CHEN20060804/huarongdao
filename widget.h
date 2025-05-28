@@ -1,5 +1,6 @@
 #ifndef WIDGET_H
 #define WIDGET_H
+
 #include <QList>
 #include <QPoint>
 #include <QWidget>
@@ -7,15 +8,17 @@
 #include <QDialog>
 #include <QPixmap>
 #include "settingpage.h"
-#include "leveldata.h"
 #include "creatgamepage.h"
 #include "loadgamepage.h"
 #include "deletegamepage.h"
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class Widget;
 }
+
 QT_END_NAMESPACE
 // 结构体：表示拖尾点，包含位置和透明度
 struct TrailPoint {
@@ -39,12 +42,11 @@ public:
     ~Widget();
 
 protected:
-    void mouseMoveEvent(QMouseEvent *event) override; // 处理鼠标移动事件
-    void mousePressEvent(QMouseEvent *event) override; // 处理鼠标点击事件
+
     void paintEvent(QPaintEvent *event) override; // 处理绘制事件
 
 private slots:
-    void updateTrail(); // 更新拖尾和水波的定时器槽函数
+   // void updateTrail(); // 更新拖尾和水波的定时器槽函数
     void changePage(int i) const;
     void popSettingDialog();//弹出设置对话框
     void popCreatingDialog();//弹出创建对话框
@@ -56,13 +58,12 @@ private slots:
     void loadCustomGame();
     void deleteCustomGame();
     void showRank();
+    void playResourceMusic(const QString &qrcPath);
+
 private:
     Ui::Widget *ui;
-    QTimer *timer; // 定时器，用于定期更新动画
-    QList<TrailPoint> trailPoints; // 存储拖尾轨迹点
-    QList<RippleEffect> rippleEffects; // 存储水波纹效果
-    int maxTrailLength = 80; // 限制拖尾最大长度，防止过长
-    int rippleMaxSize = 100; // 增加水波纹的最大扩散范围
+    QMediaPlayer* music;
+    QAudioOutput* audioOutput;
     SettingPage* setting;
     CreatGamePage* creating;
     LoadGamePage* loading;

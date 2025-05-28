@@ -41,6 +41,7 @@ SOURCES += \
     widget.cpp
 
 HEADERS += \
+    RGB.h \
     creatgamepage.h \
     customgamemaneger.h \
     custompage.h \

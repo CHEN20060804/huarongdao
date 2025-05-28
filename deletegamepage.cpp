@@ -31,12 +31,6 @@ DeleteGamePage::DeleteGamePage(QWidget *parent)
         }
     });
 
-    QGraphicsDropShadowEffect* glow = new QGraphicsDropShadowEffect(this);
-    glow->setBlurRadius(50);  // 越大越柔和
-    glow->setOffset(0, 0);    // 向四周发散
-    glow->setColor(QColor(42, 108, 246, 180));  //制造蓝光晕
-    this->setGraphicsEffect(glow);
-
     listWidget = new QListWidget(this);  // 创建 QListWidget 控件
     listWidget->setSpacing(4);  // 每个 item 之间留 4px
     listWidget->setGeometry(150, 30, 300, 260);  // 参数依次是 x, y, width, height
@@ -124,7 +118,7 @@ void DeleteGamePage::paintEvent(QPaintEvent* event)
     painter.drawRoundedRect(rect(), 15, 15);  // 绘制圆角背景
 
     // 绘制蓝色圆角边框
-    QPen pen(QColor(42, 108, 246));  // 蓝色边框
+    QPen pen(QColor(246, 246, 246));  // 蓝色边框
     pen.setWidth(2);
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);  // 不填充，只有边框

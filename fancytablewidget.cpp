@@ -1,7 +1,5 @@
-#include "FancyTableWidget.h"
-#include <QPainter>
-#include <QPainterPath>
-
+#include <QScrollBar>
+#include <QWheelEvent>
 #include "FancyTableWidget.h"
 #include <QPainter>
 #include <QPainterPath>
@@ -17,30 +15,30 @@ FancyTableWidget::FancyTableWidget(QWidget *parent)
     setSelectionMode(QAbstractItemView::NoSelection);
     setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    // 美化表头和内容
-    setStyleSheet(R"(
-        QTableWidget {
-            background-color: transparent;
-            color: white;
-            font-family: '楷体';
-            font-size: 12pt;
-            border: 2px solid #3399ff;
-            border-radius: 5px;
-        }
-        QHeaderView::section {
-            background-color: #1e1e1e;
-            color: #87cefa;
-            font-family: '楷体';
-            font-size: 14pt;
-            font-weight: bold;
-            padding: 6px;
-            border: none;
-        }
-    )");
-
-    horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     verticalHeader()->setVisible(false);
+
     setAlternatingRowColors(true);
 
-}
+    setFocusPolicy(Qt::NoFocus);
+    setCurrentItem(nullptr);
 
+    setStyleSheet(R"(
+    QTableWidget {
+        background-color: #2e2e2e;
+        color: white;
+        font-family: '楷体';
+        font-size: 12pt;
+        border: 2px solid white;
+        border-radius: 5px;
+    }
+    QHeaderView::section {
+        background-color: #1e1e1e;
+        color: white;
+        font-family: '楷体';
+        font-size: 14pt;
+        font-weight: bold;
+        padding: 6px;
+        border: none;
+    }
+)");
+}

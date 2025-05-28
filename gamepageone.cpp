@@ -172,7 +172,7 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     centralWidget->setStyleSheet(R"(
         #borderFrame {
             background: transparent;                     /* 底色全透明 */
-            border: 10px solid rgba(0, 255, 0, 50);      /* 半透明绿框 (alpha=128) */
+            border: 10px solid rgba(0, 155, 0, 50);      /* 半透明绿框 (alpha=128) */
         }
     )");
     centralWidget->move(300 - (cols - 3) * 10, 150);
@@ -359,10 +359,10 @@ void GamePageOne::createCustomTargetDisplay(QWidget* parent, const QStringList& 
     customBrowser = new QTextBrowser(parent);
     customBrowser->setGeometry(geometry);
 
-    // 设置简洁适配的半透明浅黄色背景
+
     QPalette palette = customBrowser->palette();
-    palette.setColor(QPalette::Base, QColor(241, 245, 202)); // 浅黄色 (LightYellow)，透明度180
-    palette.setColor(QPalette::Text, QColor(0, 0, 0));             // 黑色文字
+    palette.setColor(QPalette::Base, QColor(241, 245, 202,150 ));
+    palette.setColor(QPalette::Text, QColor(0, 0, 0));
     customBrowser->setPalette(palette);
 
     // 设置字体和样式

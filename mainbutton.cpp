@@ -4,9 +4,10 @@
 #include <QEasingCurve>
 #include <QTimer>
 #include <QFont>
+#include <QStyleOptionButton>
+#include "settingmanager.h"
 MainButton::MainButton(QWidget *parent, int w, int h)
     : QPushButton(parent),
-    shadowEffect(new QGraphicsDropShadowEffect(this)),
     hoverGlowAnim(new QPropertyAnimation(this, "glowStrength")),
     hoverScaleAnim(new QPropertyAnimation(this, "scaleFactor")),
     m_glowStrength(0.0),
@@ -14,8 +15,6 @@ MainButton::MainButton(QWidget *parent, int w, int h)
     m_w(w),
     m_h(h)
 {
-    setupUI();
-
     // 启动呼吸灯动画
     breathingTimer = new QTimer(this);
     connect(breathingTimer, &QTimer::timeout, this, &MainButton::startBreathingEffect);
@@ -35,9 +34,7 @@ MainButton::MainButton(QWidget *parent, int w, int h)
     // 设置样式表
     setStyleSheet(R"(
     QPushButton {
-        background-color: #292759;
         font-family: "楷体";
-        color: white;
         border-radius: 12px;
         padding: 10px 20px;
         border: 2px solid #15707C;
@@ -46,25 +43,14 @@ MainButton::MainButton(QWidget *parent, int w, int h)
     }
 )");
 
-
-
 }
 
 
 MainButton::~MainButton()
 {
-    delete shadowEffect;
     delete hoverGlowAnim;
     delete hoverScaleAnim;
     delete breathingTimer;
-}
-
-void MainButton::setupUI()
-{
-    shadowEffect->setBlurRadius(25);
-    shadowEffect->setColor(QColor(30, 100, 255, 100));
-    shadowEffect->setOffset(0, 0);
-    setGraphicsEffect(shadowEffect);
 }
 
 void MainButton::startBreathingEffect()
@@ -141,23 +127,38 @@ void MainButton::leaveEvent(QEvent *event)
 
 void MainButton::paintEvent(QPaintEvent *event)
 {
-    QPushButton::paintEvent(event);
-
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
+    rgb = SettingManager::getInstance()->getRGB();
+    int r = rgb.r;
+    int g = rgb.g;
+    int b = rgb.b;
+
+    // 1. 绘制底色
+    QColor baseColor(r/3, g/5, b/3); // 深灰底色
+    painter.setBrush(baseColor);
+    painter.setPen(Qt::NoPen);
+    painter.drawRoundedRect(rect(), 10, 10);
+
+    // 2. 绘制发光
     int w = width();
     int h = height();
-
     QRadialGradient gradient(w / 2, h / 2, w / 2);
-    gradient.setColorAt(0.0, QColor(50, 200, 220, static_cast<int>(m_glowStrength * 60))); // 中心：青蓝亮色
-    gradient.setColorAt(1.0, QColor(10, 40, 50, 0)); // 边缘：深青灰
-
-
+    gradient.setColorAt(0.0, QColor(r, g, b, static_cast<int>(m_glowStrength * 60)));
+    gradient.setColorAt(1.0, QColor(10, 40, 50, 0));
     painter.setBrush(QBrush(gradient));
-    painter.setPen(Qt::NoPen);
     painter.drawRoundedRect(rect(), 12, 12);
+
+    // 3. 最后绘制文字、图标、状态
+    QStyleOptionButton option;
+    option.initFrom(this);
+    option.text = text();
+    option.icon = icon();
+    option.iconSize = iconSize();
+    style()->drawControl(QStyle::CE_PushButton, &option, &painter, this);
 }
+
 
 double MainButton::glowStrength() const
 {
@@ -194,3 +195,12 @@ void MainButton::setwh(int i, int j)
 
     update();
 }
+
+void MainButton::setTextColor(const QColor &color)
+{
+    QPalette p = this->palette();
+    p.setColor(QPalette::ButtonText, color);
+    setPalette(p);
+    update();
+}
+

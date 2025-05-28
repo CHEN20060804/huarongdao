@@ -6,7 +6,7 @@
 #include <QPropertyAnimation>
 #include <QTimer>
 #include <QSequentialAnimationGroup>
-
+#include "RGB.h"
 class MainButton : public QPushButton {
     Q_OBJECT
     Q_PROPERTY(double glowStrength READ glowStrength WRITE setGlowStrength)
@@ -23,16 +23,17 @@ public:
     void setScaleFactor(double factor);
     void setwh(int i, int j);
 
+    void setTextColor(const QColor &color);
+
+
 protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
 
 private:
-    void setupUI();
     void startBreathingEffect();  // 启动呼吸效果
 
-    QGraphicsDropShadowEffect *shadowEffect;  // 外发光
     QPropertyAnimation *hoverGlowAnim;  // 鼠标悬停时的光效动画
     QPropertyAnimation *hoverScaleAnim; // 悬停时放大效果
     QTimer *breathingTimer;  // 定时器，用于定时触发呼吸效果
@@ -40,6 +41,7 @@ private:
     double m_scaleFactor;
     int m_h;
     int m_w;
+    RGB rgb;
 
     bool breathingEnabled = true;
 };

@@ -10,18 +10,19 @@
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 #include <QLabel>
-
+#include "settingmanager.h"
 MainStackedWidget::MainStackedWidget(QWidget *parent)
     : QStackedWidget{parent}
 {
     setFixedSize(850, 600);
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainStackedWidget::updateTrail);
-    timer->start(16);
+    timer->start(20);
     qApp->installEventFilter(this);
 }
 void MainStackedWidget::paintEvent(QPaintEvent *event)
 {
+    rgb = SettingManager::getInstance()->getRGB();
     QStackedWidget::paintEvent(event);
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);  // 启用抗锯齿
@@ -31,7 +32,7 @@ void MainStackedWidget::paintEvent(QPaintEvent *event)
         float factor = static_cast<float>(i) / trailPoints.size(); // 计算渐变因子，确保靠近鼠标的部分最大
         int alpha = 155 * (1 - factor); // 透明度逐渐降低
         int size = 6 * (1 - factor) + 4; // 从大到小渐变
-        QColor color(0, 50 + (1 - factor) * 50, 255 - (1 - factor) * 100, alpha);
+        QColor color(rgb.r/3, rgb.g/10 + (1 - factor) * 50, rgb.b - (1 - factor) * 100, alpha);
         painter.setBrush(QBrush(color, Qt::SolidPattern));
         painter.setPen(Qt::NoPen);
         painter.drawEllipse(trailPoints[i].pos, size, size);
@@ -41,7 +42,7 @@ void MainStackedWidget::paintEvent(QPaintEvent *event)
     for (const auto &wave : rippleEffects) {
         int alpha = 255 - wave.radius * 2; // 透明度随半径减小
         if (alpha < 0) alpha = 0;
-        QColor color(0, 50, 255, alpha);
+        QColor color(rgb.r/6, rgb.g/3, rgb.b/3, alpha);
         painter.setPen(QPen(color, 5)); // 细边框增强渐变感
         painter.setBrush(Qt::NoBrush);
         painter.drawEllipse(wave.center, wave.radius, wave.radius);

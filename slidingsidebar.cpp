@@ -14,8 +14,8 @@ SlidingSidebar::SlidingSidebar(QWidget* parent,
     sidebarHeight(sidebarHeight),
     position(topLeft),
     bgColor(backgroundColor),
-    maxline(maxline),
-    slideDirection(direction)
+    slideDirection(direction),
+    maxline(maxline)
 {
     setGeometry(QRect(position, QSize(sidebarWidth, sidebarHeight)));
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

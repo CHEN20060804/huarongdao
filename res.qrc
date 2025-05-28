@@ -23,5 +23,11 @@
         <file>res/loading.png</file>
         <file>res/save.png</file>
         <file>res/reload.png</file>
+        <file>res/bk_tree.jpg</file>
+        <file>res/bk_snow.jpg</file>
+        <file>res/bk_sunset.jpg</file>
+        <file>res/chunri.mp3</file>
+        <file>res/xiari.mp3</file>
+        <file>res/yuye.mp3</file>
     </qresource>
 </RCC>
