@@ -21,7 +21,7 @@ signals:
     void cancelBtnClicked();
     void changeBKPH(QString s);
     void changeBGM(QString s);
-
+    void changeBGMvol(int vol);
 
 private:
     Ui::SettingPage *ui;

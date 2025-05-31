@@ -22,6 +22,13 @@ RankManager* RankManager::getInstance()
     return &manager;
 }
 
+double RankManager::getOldRecord(const GameSessionData& data) const
+{
+    int Id = data.getId();
+    double oldSeconds = LevelBest[Id].getSeconds();
+    return oldSeconds;
+}
+
 
 bool RankManager::writeRecord(GameSessionData& data)
 {
@@ -38,7 +45,6 @@ bool RankManager::writeRecord(GameSessionData& data)
         return false;
     }
     qDebug() << "Directory Path: " << dirPath;
-
     QJsonArray array;
     for (const auto& d : LevelBest) {
         array.append(d.toJson());

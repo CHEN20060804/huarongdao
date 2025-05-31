@@ -7,6 +7,7 @@
 #include <QDebug>
 #include "rankmanager.h"
 #include "poptips.h"
+#include"settingmanager.h"
 GamePageOne::GamePageOne(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::GamePageOne)
@@ -17,6 +18,7 @@ GamePageOne::GamePageOne(QWidget *parent)
     , customBrowser(nullptr)
     ,gameTimer(nullptr)
     ,difficultyBar(nullptr)
+    ,sound(new QSoundEffect(this))
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -46,6 +48,7 @@ GamePageOne::GamePageOne(QWidget *parent)
         resetRecord();
         loadLevel(level, isCustom);
     });
+
 }
 
 void GamePageOne::updateUI() {
@@ -94,14 +97,20 @@ void GamePageOne::tryMove(int i, int j) {
 
             // 创建动画
             QPropertyAnimation* anim = new QPropertyAnimation(movedBtn, "pos");
-            anim->setDuration(200);
+            anim->setDuration(280);
+            anim->setEasingCurve(QEasingCurve::InOutCubic);
             anim->setStartValue(movedBtn->pos());
             anim->setEndValue(targetPos);
             anim->start(QAbstractAnimation::DeleteWhenStopped);
 
             // 更新按钮位置信息
             movedBtn->setRowCol(toRow, toCol);
+
             std::swap(tiles[fromIndex], tiles[toIndex]);
+
+            QTimer::singleShot(160, this, [=](){//稍微延迟，碰撞音效
+                sound->play();
+            });
         }
 
         if (logic->isSolved()) {
@@ -109,11 +118,17 @@ void GamePageOne::tryMove(int i, int j) {
             youWin();//胜利效果
             if(!isCustom)
             {
+                int oldR = RankManager::getInstance()->getOldRecord(session);
+                int newR = session.getSeconds();
+                if(oldR < newR&&oldR > 1e-3) return;
                 session.setDifficult(hardness);
                 RankManager::getInstance()->writeRecord(session);
-                PopTips::GoodCenter(this, "您创造了本关卡的新纪录");
+                PopTips::GoodCenter(this, "您创造了新的记录");
                 qDebug() << "ok";
+                sound->setSource(QUrl("qrc:/video/res/niubi.wav"));
+                return;
             }
+            sound->setSource(QUrl("qrc:/video/res/win.wav"));
         }
     }
 }
@@ -124,6 +139,11 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     int cols = level.getw();
     int rows = level.geth();
     int ID = level.getId();
+
+    sound->setSource(QUrl("qrc:/video/res/tap.wav"));
+
+    sound->setVolume(SettingManager::getInstance()->getSoundVolume()/100.0);
+    qDebug() << SettingManager::getInstance()->getSoundVolume()/100.0;
 
     if(isCustom==false)
     {
@@ -324,11 +344,20 @@ void GamePageOne::setTitle(int ID)
     font.setPointSize(36);
     font.setItalic(false);
     font.setFamily("Raleway");
+
     ui->label->setFont(font);
-    ui->label->setStyleSheet("border-radius: 10px; border: 2px solid white;");
     ui->label->setAlignment(Qt::AlignCenter);  // 设置居中对齐
     ui->label->setText(QString::number(ID + 1));
+
+    // 设置淡米白背景 + 黑色文字 + 边框样式
+    ui->label->setStyleSheet(R"(
+        background-color: rgba(253, 246, 227, 180);    /* 淡淡的米白色 */
+        color: black;                /* 黑色字体 */
+        border-radius: 10px;
+        border: 2px solid #ccc;
+    )");
 }
+
 void GamePageOne::youWin()
 {
     for(int i = 0;i< tiles.size();i++)
@@ -361,7 +390,7 @@ void GamePageOne::createCustomTargetDisplay(QWidget* parent, const QStringList& 
 
 
     QPalette palette = customBrowser->palette();
-    palette.setColor(QPalette::Base, QColor(241, 245, 202,150 ));
+    palette.setColor(QPalette::Base, QColor(241, 245, 202,150));
     palette.setColor(QPalette::Text, QColor(0, 0, 0));
     customBrowser->setPalette(palette);
 

@@ -9,6 +9,8 @@
 #include "gamesessiondata.h"
 #include <QTimer>
 #include <memory>
+#include <QSoundEffect>
+
 class Man : public QObject {
     Q_OBJECT
 
@@ -21,9 +23,11 @@ protected:
     SlidingSidebar* recordBar;
     GameSessionData session;
     QTimer* gameTimer;
+    QSoundEffect* sound;
 
-    explicit Man(QObject* parent = nullptr) : QObject(parent), logic(nullptr), recordBar(nullptr), gameTimer(nullptr)
-    {}
+    explicit Man(QObject* parent = nullptr) : QObject(parent), logic(nullptr), recordBar(nullptr), gameTimer(nullptr),sound(new QSoundEffect(this))
+    {
+    }
 
     virtual void initBoard(const Level& level, QWidget* parentWidget) = 0;
     virtual void tryMove(int i, int j) = 0;

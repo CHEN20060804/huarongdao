@@ -15,6 +15,8 @@ public:
 
     QVector<GameSessionData> getLevelBest();
 
+    double getOldRecord(const GameSessionData& data) const;
+
 
 private:
 

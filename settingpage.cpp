@@ -52,6 +52,11 @@ SettingPage::SettingPage(QWidget *parent)
         color: white;
     })");
 
+    ui->SOUNDslider->setRange(0, 100);
+    ui->BGMslider->setRange(0, 100);
+    ui->SOUNDslider->setValue(60);
+    ui->BGMslider->setValue(15);
+
     bgphMap = {
         { "霁蓝", "bk7" },
         { "仰望", "bk_tree" },
@@ -93,13 +98,26 @@ SettingPage::SettingPage(QWidget *parent)
         SettingManager::getInstance()->setBGM(bgmMap.value(name));
         emit changeBGM(bgmMap.value(name));
     });
+    connect(ui->BGMslider, &QSlider::valueChanged, this, [=](int val){
+        SettingManager::getInstance()->setBGMVolume(val);
+        emit changeBGMvol(val);
+    });
+    connect(ui->SOUNDslider, &QSlider::valueChanged, this, [=](int val){
+        qDebug() << val;
+        SettingManager::getInstance()->setSoundVolume(val);
+    });
 
+    QString BGPH = keyByValue(bgphMap, SettingManager::getInstance()->getBGPH());
+    ui->comboBoxBGPH->setCurrentText(BGPH);
 
-    QString savedBGPH = keyByValue(bgphMap, SettingManager::getInstance()->getBGPH());
-    ui->comboBoxBGPH->setCurrentText(savedBGPH);
+    QString BGM = keyByValue(bgmMap, SettingManager::getInstance()->getBGM());
+    ui->comboBoxBGM->setCurrentText(BGM);
 
-    QString savedBGM = keyByValue(bgmMap, SettingManager::getInstance()->getBGM());
-    ui->comboBoxBGM->setCurrentText(savedBGM);
+    int BGMvol = SettingManager::getInstance()->getBGMVolume();
+    ui->BGMslider->setValue(BGMvol);
+
+    int SOUNDvol = SettingManager::getInstance()->getSoundVolume();
+    ui->SOUNDslider->setValue(SOUNDvol);
 }
 
 void SettingPage::paintEvent(QPaintEvent* event)

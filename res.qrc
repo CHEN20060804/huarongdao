@@ -29,5 +29,8 @@
         <file>res/chunri.mp3</file>
         <file>res/xiari.mp3</file>
         <file>res/yuye.mp3</file>
+        <file>res/tap.wav</file>
+        <file>res/niubi.wav</file>
+        <file>res/win.wav</file>
     </qresource>
 </RCC>

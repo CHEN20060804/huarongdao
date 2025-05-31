@@ -1,4 +1,4 @@
-#include "gamepagewithai.h"
+ #include "gamepagewithai.h"
 #include "widget.h"
 #include "ui_widget.h"
 #include <QPainter>
@@ -42,7 +42,6 @@ Widget::Widget(QWidget *parent)
     QString phpath = QString(":/video/res/%1.jpg").arg(bgph);
     qDebug() << phpath;
 
-    music->setAudioOutput(audioOutput);
     QString bgm = SettingManager::getInstance()->getBGM();
     qDebug() << bgm;
 
@@ -91,6 +90,9 @@ Widget::Widget(QWidget *parent)
 
     connect(ui->custompage, &CustomPage::deleteBtnClicked, this, &Widget::popDeletingDialog);
 
+    this->installEventFilter(this);
+
+
 }
 
 void Widget::paintEvent(QPaintEvent *event)
@@ -127,6 +129,10 @@ void Widget::popSettingDialog()
         update();
     });
     connect(setting, &SettingPage::changeBGM, this, &Widget::playResourceMusic);
+    connect(setting, &SettingPage::changeBGMvol, this, [=](int val){
+        qDebug() << val;
+        audioOutput->setVolume(val/400.0);
+    });
     connect(setting, &SettingPage::saveBtnClicked, this, &Widget::saveSetting);
     connect(setting, &SettingPage::cancelBtnClicked, this, [=]() {
         fadeOutAndClose(dialog);
@@ -238,6 +244,9 @@ void Widget::popDeletingDialog()
 
     dialog->exec();
 }
+
+
+
 void Widget::saveCustomGame()
 {
     if(!creating->saveCustomGame())
@@ -254,31 +263,11 @@ void Widget::playResourceMusic(const QString &bgm)
         music->setSource(QUrl());
         return;
     };
-    QString gpath = QString(":/video/res/%1.mp3").arg(bgm);
-    QFile resFile(gpath);
-    if (!resFile.open(QIODevice::ReadOnly)) {
-        qWarning() << "打开资源失败:" << resFile.fileName();
-        return;
-    }
-    QByteArray data = resFile.readAll();
-    resFile.close();
-
-    QString tempDir = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
-    if (!QDir().exists(tempDir))
-        QDir().mkpath(tempDir);
-
-    QString tempFilePath = tempDir + "/temp_music.mp3";
-
-    QFile tempFile(tempFilePath);
-    if (!tempFile.open(QIODevice::WriteOnly)) {
-        qWarning() << "写入临时文件失败:" << tempFilePath;
-        return;
-    }
-    tempFile.write(data);
-    tempFile.close();
+    QString gpath = QString("qrc:/video/res/%1.mp3").arg(bgm);
 
     music->setAudioOutput(audioOutput);
-    music->setSource(QUrl::fromLocalFile(tempFilePath));
+    music->setSource(QUrl(gpath));
+    audioOutput->setVolume(SettingManager::getInstance()->getBGMVolume()/400.0);
 
     QTimer::singleShot(0, this, [=]() {
         music->stop();

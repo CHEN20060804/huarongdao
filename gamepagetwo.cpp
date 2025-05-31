@@ -4,7 +4,7 @@
 #include <QFrame>
 #include <QStyle>
 #include <QParallelAnimationGroup>
-//#include <QKeyEvent>
+#include "settingmanager.h"
 GamePageTwo::GamePageTwo(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::GamePageTwo)
@@ -54,6 +54,17 @@ GamePageTwo::GamePageTwo(QWidget *parent)
 
     setFocusPolicy(Qt::StrongFocus);
     setFocus();
+
+    QString s = R"(
+        background-color: rgba(253, 246, 227, 180);    /* 淡淡的米白色 */
+        color: black;                /* 黑色字体 */
+        border-radius: 2px;
+        border: 2px solid #ccc;
+    )";
+    ui->label->setStyleSheet(s);
+    ui->label_2->setStyleSheet(s);
+    installEventFilter(this);
+
 }
 
 void GamePageTwo::moveSelection(QPair<int, int> &pos, int dRow, int dCol, Player2* player) {
@@ -212,16 +223,30 @@ void GamePageTwo::loadLevel(const Level& level) {
     playerL->getOneTile(*selectedL)->setSelected(true);
     playerR->getOneTile(*selectedR)->setSelected(true);
 
+
+
     widgetL->show();
     widgetR->show();
 }
 
-
+bool GamePageTwo::eventFilter(QObject* obj, QEvent* event) {
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+        if (keyEvent->key() == Qt::Key_Tab) {
+            return true;
+        }
+    }
+    return QWidget::eventFilter(obj, event);
+}
 void Player2::initBoard(const Level& level, QWidget* parent) {
     int cols = level.getw();
     int rows = level.geth();
 
     logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
+
+    double val = SettingManager::getInstance()->getSoundVolume()/100.0;
+    sound->setVolume(val);
+    sound->setSource(QUrl("qrc:/video/res/tap.wav"));
 
     // 清空旧控件
     if (parent->layout()) {
@@ -287,18 +312,25 @@ void Player2::tryMove(int i, int j) {
     QPoint posEmpty = emptyBtn->pos();
 
     auto *animMoved = new QPropertyAnimation(movedBtn, "pos");
-    animMoved->setDuration(180);
+    animMoved->setDuration(280);
+    animMoved->setEasingCurve(QEasingCurve::InOutCubic);
     animMoved->setStartValue(posMoved);
     animMoved->setEndValue(posEmpty);
 
     auto *animEmpty = new QPropertyAnimation(emptyBtn, "pos");
-    animEmpty->setDuration(180);
+    animEmpty->setDuration(280);
+    animEmpty->setEasingCurve(QEasingCurve::InOutCubic);
     animEmpty->setStartValue(posEmpty);
     animEmpty->setEndValue(posMoved);
 
     QParallelAnimationGroup* group = new QParallelAnimationGroup(this);
     group->addAnimation(animMoved);
     group->addAnimation(animEmpty);
+
+    QTimer::singleShot(160, this, [=](){
+        sound->play();
+    });
+
 
     isAnimating = true;
     connect(group, &QParallelAnimationGroup::finished, this, [=]() {
@@ -330,6 +362,8 @@ void Player2::tryMove(int i, int j) {
         isAnimating = false;
 
         if (logic->isSolved()) {
+            sound->setSource(QUrl("qrc:/video/res/win.wav"));
+            sound->play();
             stopRecord();
             emit over(this);
         }
@@ -416,7 +450,7 @@ void GamePageTwo::createCustomTargetDisplay(QWidget* parent, const QStringList& 
 
     // 设置简洁适配的半透明浅黄色背景
     QPalette palette = targetText->palette();
-    palette.setColor(QPalette::Base, QColor(241, 245, 202)); // 浅黄色 (LightYellow)，透明度180
+    palette.setColor(QPalette::Base, QColor(241, 245, 202, 150)); // 浅黄色 (LightYellow)，透明度180
     palette.setColor(QPalette::Text, QColor(0, 0, 0));             // 黑色文字
     targetText->setPalette(palette);
 

@@ -14,6 +14,7 @@
 #include <memory>
 #include "man.h"
 #include "difficultylabel.h"
+#include <QSoundEffect>
 
 
 namespace Ui {
@@ -56,6 +57,7 @@ private:
     bool isCustom;
     double hardness;
     DifficultyLabel* difficultyBar;
+    QSoundEffect* sound;
 
     void initRecordSlidingSidebar();
     void showTargetText(const QString& text);

@@ -29,7 +29,7 @@ SlidingSidebar::SlidingSidebar(QWidget* parent,
     contentWidget->setFixedWidth(sidebarWidth);
     contentLayout = new QVBoxLayout(contentWidget);
     contentLayout->setAlignment(Qt::AlignTop);
-    contentLayout->setSpacing(40); // 行间距为10像素
+    contentLayout->setSpacing(40);
 
     contentLayout->setContentsMargins(30, 13, 20, 13);
 
@@ -80,20 +80,13 @@ void SlidingSidebar::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     QColor bg(bgColor);
-    bg.setAlpha(220); // 半透明
+    bg.setAlpha(200); // 半透明
     painter.setBrush(bg);
     painter.setPen(Qt::NoPen);
     painter.drawRoundedRect(rect(), radius, radius);
     QWidget::paintEvent(event);
 }
 
-// void SlidingSidebar::setLineText(int lineIndex, const QString& text)
-// {
-//     if (lineIndex >= 0 && lineIndex < lineLabels.size()) {
-//         lineLabels[lineIndex]->setText(text);
-//         contentLayout->activate();
-//     }
-// }
 
 void SlidingSidebar::setLineText(int lineIndex, const QString& text)
 {
@@ -101,15 +94,13 @@ void SlidingSidebar::setLineText(int lineIndex, const QString& text)
         QLabel* label = lineLabels[lineIndex];
         label->setText(text);
 
-        // 自动计算文本高度
         QFontMetrics fm(label->font());
-        int wrapWidth = label->width(); // 或者提前保存的 wrapWidth
+        int wrapWidth = label->width();
         QRect bound = fm.boundingRect(0, 0, wrapWidth, 9999, Qt::TextWordWrap, text);
 
         int finalHeight = bound.height();
 
-        // 限制最大高度，比如最多 6 行
-        int maxHeight = 20 * 1.6 * 8;  // 乘 1.6 留余地防止上下裁剪
+        int maxHeight = 20 * 1.6 * 8;
         finalHeight = std::min(finalHeight, maxHeight);
 
         label->setMinimumHeight(finalHeight);

@@ -45,6 +45,7 @@ protected:
 
     void paintEvent(QPaintEvent *event) override; // 处理绘制事件
 
+
 private slots:
    // void updateTrail(); // 更新拖尾和水波的定时器槽函数
     void changePage(int i) const;
