@@ -54,7 +54,7 @@ SettingPage::SettingPage(QWidget *parent)
 
     ui->SOUNDslider->setRange(0, 100);
     ui->BGMslider->setRange(0, 100);
-    ui->SOUNDslider->setValue(60);
+    ui->SOUNDslider->setValue(50);
     ui->BGMslider->setValue(15);
 
     bgphMap = {

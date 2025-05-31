@@ -23,10 +23,14 @@ protected:
     SlidingSidebar* recordBar;
     GameSessionData session;
     QTimer* gameTimer;
-    QSoundEffect* sound;
+    QSoundEffect* movesound;
+    QSoundEffect* winsound;
 
-    explicit Man(QObject* parent = nullptr) : QObject(parent), logic(nullptr), recordBar(nullptr), gameTimer(nullptr),sound(new QSoundEffect(this))
+
+    explicit Man(QObject* parent = nullptr) : QObject(parent), logic(nullptr), recordBar(nullptr), gameTimer(nullptr),movesound(new QSoundEffect(this)), winsound(new QSoundEffect(this))
     {
+        movesound->setSource(QUrl("qrc:/video/res/tap.wav"));
+        winsound->setSource(QUrl("qrc:/video/res/win.wav"));
     }
 
     virtual void initBoard(const Level& level, QWidget* parentWidget) = 0;

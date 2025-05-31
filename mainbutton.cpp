@@ -30,17 +30,18 @@ MainButton::MainButton(QWidget *parent, int w, int h)
     QFont font = this->font();
     font.setPixelSize(m_h/3);
     setFont(font);
-
-    // 设置样式表
     setStyleSheet(R"(
-    QPushButton {
-        font-family: "楷体";
-        border-radius: 12px;
-        padding: 10px 20px;
-        border: 2px solid #15707C;
-        text-align: center;
-        font-weight: bold;
-    }
+QPushButton {
+    font-family: "楷体";
+    border-radius: 12px;
+    padding: 10px 20px;
+    border: 2px solid #15707C;
+    text-align: center;
+    font-weight: bold;
+}
+QPushButton:focus {
+    outline: none;
+}
 )");
 
 }

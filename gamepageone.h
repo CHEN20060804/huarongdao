@@ -57,7 +57,10 @@ private:
     bool isCustom;
     double hardness;
     DifficultyLabel* difficultyBar;
-    QSoundEffect* sound;
+    QSoundEffect* movesound;
+    QSoundEffect* winsound;
+    QSoundEffect* niubisound;
+
 
     void initRecordSlidingSidebar();
     void showTargetText(const QString& text);

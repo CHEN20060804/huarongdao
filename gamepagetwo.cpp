@@ -245,8 +245,8 @@ void Player2::initBoard(const Level& level, QWidget* parent) {
     logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
 
     double val = SettingManager::getInstance()->getSoundVolume()/100.0;
-    sound->setVolume(val);
-    sound->setSource(QUrl("qrc:/video/res/tap.wav"));
+    movesound->setVolume(val);
+    winsound->setVolume(val);
 
     // 清空旧控件
     if (parent->layout()) {
@@ -328,7 +328,7 @@ void Player2::tryMove(int i, int j) {
     group->addAnimation(animEmpty);
 
     QTimer::singleShot(160, this, [=](){
-        sound->play();
+        movesound->play();
     });
 
 
@@ -362,8 +362,7 @@ void Player2::tryMove(int i, int j) {
         isAnimating = false;
 
         if (logic->isSolved()) {
-            sound->setSource(QUrl("qrc:/video/res/win.wav"));
-            sound->play();
+            winsound->play();
             stopRecord();
             emit over(this);
         }

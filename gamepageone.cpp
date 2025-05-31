@@ -18,7 +18,9 @@ GamePageOne::GamePageOne(QWidget *parent)
     , customBrowser(nullptr)
     ,gameTimer(nullptr)
     ,difficultyBar(nullptr)
-    ,sound(new QSoundEffect(this))
+    ,movesound(new QSoundEffect(this))
+    ,winsound(new QSoundEffect(this))
+    ,niubisound(new QSoundEffect(this))
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -48,6 +50,13 @@ GamePageOne::GamePageOne(QWidget *parent)
         resetRecord();
         loadLevel(level, isCustom);
     });
+
+    movesound->setSource(QUrl("qrc:/video/res/tap.wav"));
+
+    winsound->setSource(QUrl("qrc:/video/res/win.wav"));
+
+    niubisound->setSource(QUrl("qrc:/video/res/niubi.wav"));
+
 
 }
 
@@ -109,7 +118,7 @@ void GamePageOne::tryMove(int i, int j) {
             std::swap(tiles[fromIndex], tiles[toIndex]);
 
             QTimer::singleShot(160, this, [=](){//稍微延迟，碰撞音效
-                sound->play();
+                movesound->play();
             });
         }
 
@@ -120,15 +129,17 @@ void GamePageOne::tryMove(int i, int j) {
             {
                 int oldR = RankManager::getInstance()->getOldRecord(session);
                 int newR = session.getSeconds();
-                if(oldR < newR&&oldR > 1e-3) return;
+                if(oldR < newR&&oldR > 1e-3)
+                {
+                    winsound->play();
+                    return;
+                }
                 session.setDifficult(hardness);
                 RankManager::getInstance()->writeRecord(session);
                 PopTips::GoodCenter(this, "您创造了新的记录");
-                qDebug() << "ok";
-                sound->setSource(QUrl("qrc:/video/res/niubi.wav"));
+                niubisound->play();
                 return;
             }
-            sound->setSource(QUrl("qrc:/video/res/win.wav"));
         }
     }
 }
@@ -139,11 +150,6 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     int cols = level.getw();
     int rows = level.geth();
     int ID = level.getId();
-
-    sound->setSource(QUrl("qrc:/video/res/tap.wav"));
-
-    sound->setVolume(SettingManager::getInstance()->getSoundVolume()/100.0);
-    qDebug() << SettingManager::getInstance()->getSoundVolume()/100.0;
 
     if(isCustom==false)
     {
@@ -243,6 +249,11 @@ void GamePageOne::loadLevel(const Level& level, bool isCustom) {
     difficultyBar = new DifficultyLabel(this, 0, 100);
     difficultyBar->setDifficulty(hardness);
     difficultyBar->show();
+
+    double val = SettingManager::getInstance()->getSoundVolume()/100.0;
+    niubisound->setVolume(val);
+    winsound->setVolume(val);
+    movesound->setVolume(val);
 
     updateUI();
 
