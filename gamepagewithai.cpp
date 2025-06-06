@@ -27,6 +27,20 @@ GamePageWithAI::GamePageWithAI(QWidget *parent)
         ai->timer->stop();
         ai->isExit = true;
         emit mainBtnClicked(2);
+        //delete ai;
+        ai->deleteLater();
+        ai = nullptr;
+    });
+
+    MainButton* reloadBtn = new MainButton(this, 50, 50);
+    reloadBtn->move(150, 30);
+    reloadBtn->setIcon(QIcon(":/video/res/reload.png"));
+    reloadBtn->setIconSize(QSize(30, 30));
+
+    connect(reloadBtn, &QPushButton::clicked, [=](){
+        ai->timer->stop();
+        ai->isExit = true;
+        loadLevel(level);
     });
 
     QFrame* dividerLine = new QFrame(this);
@@ -344,7 +358,7 @@ void AI::initBoard(const Level& level, QWidget* parent) {
     // 1. 构建 targetMap: 把每个 tile (QString) 映射到它在 targetBoard 中的唯一索引
     targetMap.clear();
     for (int i = 0; i < size; ++i) {
-        targetMap[targetBoard[i]] = i;
+        targetMap.insert(targetBoard[i], i);
     }
 
     // 2. 缓存每个索引的“目标行/列”以便后续快速查询
@@ -487,107 +501,117 @@ AI::~AI() {
     qDebug() << "[AI] 析构结束";
 }
 
-int AI::calculateLinearConflict(const QVector<QString>& board) {
-    int linear = 0;
-    const int size = board.size();
-    const int height = size / width;
+int AI::calculateRowConflict(const QVector<QString>& board, int row) {
+    int conflict = 0;
+    int baseIdx = row * width;
+    int height  = board.size() / width;
+    QVector<bool> used(targetBoard.size(), false);
+    QVector<QPair<int,int>> tiles;
+    tiles.reserve(width);
 
-    // 如果 targetRow/targetCol 还没初始化，则在 initBoard 时已建好，这里可跳过检查
-
-    // ==== 横向线性冲突：逐行检查 ====
-    for (int row = 0; row < height; ++row) {
-        // 把本行里“当前列且目标也在这一行”的所有方块先收集到 tiles 数组
-        QVector<QPair<int,int>> tiles; // 容器中每个元素是 (当前列, 目标列)
-        tiles.reserve(width);          // 最多 width 个方块
-
-        for (int col = 0; col < width; ++col) {
-            int idx = row * width + col;
-            const QString& val = board[idx];
-            if (val.isEmpty()) continue;    // 跳过空格
-
-            // 查找该值在目标中的索引
-            auto it = targetMap.find(val);
-            if (it == targetMap.end()) continue; // 若目标里没有，也先跳过
-
-            int tIdx = it.value();              // 目标索引
-            int tRow = targetRow[tIdx];         // 目标行
-            int tCol = targetCol[tIdx];         // 目标列
-
-            if (tRow == row) {
-                // 只有当“目标也在本行”时，才收集到 tiles 里
-                tiles.append(qMakePair(col, tCol));
-            }
-        }
-
-        // 如果这一行不止一个方块，就检查它们的“当前列顺序 vs 目标列顺序”
-        int m = tiles.size();
-        for (int i = 0; i < m; ++i) {
-            for (int j = i + 1; j < m; ++j) {
-                if ((tiles[i].first < tiles[j].first) !=
-                    (tiles[i].second < tiles[j].second)) {
-                    linear += 2;
-                }
-            }
-        }
-    }
-
-    // ==== 纵向线性冲突：逐列检查 ====
     for (int col = 0; col < width; ++col) {
-        QVector<QPair<int,int>> tiles; // (当前行, 目标行)
-        tiles.reserve(height);
+        int idx = baseIdx + col;
+        const QString& val = board[idx];
+        if (val.isEmpty()) continue;
 
-        for (int row = 0; row < height; ++row) {
-            int idx = row * width + col;
-            const QString& val = board[idx];
-            if (val.isEmpty()) continue;
-
-            auto it = targetMap.find(val);
-            if (it == targetMap.end()) continue;
-
-            int tIdx = it.value();
-            int tRow = targetRow[tIdx];
-            int tCol = targetCol[tIdx];
-
-            if (tCol == col) {
-                // 只有当“目标也在本列”时，才收集
-                tiles.append(qMakePair(row, tRow));
-            }
+        // 候选目标索引列表
+        QList<int> cands = targetMap.values(val);
+        int chosen = -1;
+        for (int tIdx : cands) {
+            if (used[tIdx]) continue;
+            if (tIdx / width != row) continue;
+            chosen = tIdx;
+            break;
         }
-
-        int m = tiles.size();
-        for (int i = 0; i < m; ++i) {
-            for (int j = i + 1; j < m; ++j) {
-                // 相似逻辑：判断“(curRow_i < curRow_j) != (targetRow_i < targetRow_j)”
-                if ((tiles[i].first < tiles[j].first) !=
-                    (tiles[i].second < tiles[j].second)) {
-                    linear += 2;
-                }
-            }
+        if (chosen >= 0) {
+            used[chosen] = true;
+            int targetCol = chosen % width;
+            tiles.append({col, targetCol});
         }
     }
 
-    return linear;
+    int m = tiles.size();
+    for (int i = 0; i < m; ++i) {
+        for (int j = i + 1; j < m; ++j) {
+            if ((tiles[i].first < tiles[j].first) !=
+                (tiles[i].second < tiles[j].second)) {
+                conflict += 2;
+            }
+        }
+    }
+    return conflict;
 }
 
-int AI::heuristic(const QVector<QString>& board) {
-    int size = board.size();
-    int manhattanSum = 0;
+int AI::calculateColConflict(const QVector<QString>& board, int col) {
+    int conflict = 0;
+    int height = board.size() / width;
+    QVector<bool> used(targetBoard.size(), false);
+    QVector<QPair<int,int>> tiles;
+    tiles.reserve(height);
 
-    // 1. 计算全盘曼哈顿距离之和
-    for (int i = 0; i < size; ++i) {
-        const QString& val = board[i];
-        if (val.isEmpty()) continue;  // 空格不算
-        int tIdx = targetMap.value(val);       // 目标索引
-        int xi = i / width, yi = i % width;     // 当前坐标
-        int xt = targetRow[tIdx], yt = targetCol[tIdx]; // 目标坐标
-        manhattanSum += std::abs(xi - xt) + std::abs(yi - yt);
+    for (int row = 0; row < height; ++row) {
+        int idx = row * width + col;
+        const QString& val = board[idx];
+        if (val.isEmpty()) continue;
+
+        QList<int> cands = targetMap.values(val);
+        int chosen = -1;
+        for (int tIdx : cands) {
+            if (used[tIdx]) continue;
+            if (tIdx % width != col) continue;
+            chosen = tIdx;
+            break;
+        }
+        if (chosen >= 0) {
+            used[chosen] = true;
+            int targetRowIdx = chosen / width;
+            tiles.append({ row, targetRowIdx });
+        }
     }
 
-    // 2. 计算线性冲突惩罚
-    int linear = calculateLinearConflict(board);
-
-    return manhattanSum + linear;
+    int m = tiles.size();
+    for (int i = 0; i < m; ++i) {
+        for (int j = i + 1; j < m; ++j) {
+            if ((tiles[i].first < tiles[j].first) !=
+                (tiles[i].second < tiles[j].second)) {
+                conflict += 2;
+            }
+        }
+    }
+    return conflict;
 }
+
+int AI::calculateLinearConflict(const QVector<QString>& board) {
+    int total = 0;
+    int height = board.size() / width;
+    for (int r = 0; r < height; ++r) {
+        total += calculateRowConflict(board, r);
+    }
+    for (int c = 0; c < width; ++c) {
+        total += calculateColConflict(board, c);
+    }
+    return total;
+}
+
+// int AI::heuristic(const QVector<QString>& board) {
+//     int size = board.size();
+//     int manhattanSum = 0;
+
+//     // 1. 计算全盘曼哈顿距离之和
+//     for (int i = 0; i < size; ++i) {
+//         const QString& val = board[i];
+//         if (val.isEmpty()) continue;  // 空格不算
+//         int tIdx = targetMap.value(val);       // 目标索引
+//         int xi = i / width, yi = i % width;     // 当前坐标
+//         int xt = targetRow[tIdx], yt = targetCol[tIdx]; // 目标坐标
+//         manhattanSum += std::abs(xi - xt) + std::abs(yi - yt);
+//     }
+
+//     // 2. 计算线性冲突惩罚
+//     int linear = calculateLinearConflict(board);
+
+//     return manhattanSum + linear;
+// }
 
 quint64 AI::hashBoard(const QVector<QString>& board) const {
     quint64 hash = 0xcbf29ce484222325ULL; // 64位 FNV 初始值
@@ -602,116 +626,91 @@ QVector<AI::State> AI::generateNeighbors(const State& current) {
     QVector<State> neighbors;
     int row = current.emptyPos / width;
     int col = current.emptyPos % width;
-
-    // 四个方向偏移
     const QVector<QPair<int,int>> directions = {{-1,0},{1,0},{0,-1},{0,1}};
-    // 只拷贝一次当前盘面
+
+    // 只拷贝一次
     QVector<QString> boardCopy = current.board;
 
-    for (const auto& [dr, dc] : directions) {
+    for (int dir = 0; dir < 4; ++dir) {
+        int dr = directions[dir].first;
+        int dc = directions[dir].second;
         int newRow = row + dr;
         int newCol = col + dc;
-        if (newRow < 0 || newRow >= targetBoard.size() / width ||
-            newCol < 0 || newCol >= width)
-        {
+        if (newRow < 0 || newRow >= boardCopy.size()/width || newCol < 0 || newCol >= width)
             continue;
-        }
         int newIndex = newRow * width + newCol;
 
-        // —— 1. 增量更新曼哈顿距离 ——
+        // —— 1. 增量计算曼哈顿 ——
         int newManhattan = current.manhattan;
         const QString& movedVal = boardCopy[newIndex];
         if (!movedVal.isEmpty()) {
-            // 取出该 tile 在目标盘面中的所有可能索引
-            QList<int> cand = targetMap.values(movedVal);
+            QList<int> cands = targetMap.values(movedVal);
+            int bestOldDist = INT_MAX, bestNewDist = INT_MAX;
+            for (int tIdx : cands) {
+                // “旧位置 newIndex”到目标 tIdx 的距离
+                int ox = newIndex / width, oy = newIndex % width;
+                int xt = targetRow[tIdx], yt = targetCol[tIdx];
+                int dOld = std::abs(ox - xt) + std::abs(oy - yt);
+                if (dOld < bestOldDist) bestOldDist = dOld;
 
-            // 计算“旧位置 newIndex 到目标各索引”的最小距离
-            int bestOldDist = INT_MAX;
-            for (int tIdx : cand) {
-                int oldX = newIndex / width;
-                int oldY = newIndex % width;
-                int xt = targetRow[tIdx];
-                int yt = targetCol[tIdx];
-                int d = std::abs(oldX - xt) + std::abs(oldY - yt);
-                if (d < bestOldDist) bestOldDist = d;
+                // “新位置 emptyPos”到目标 tIdx 的距离
+                int nx = current.emptyPos / width, ny = current.emptyPos % width;
+                int dNew = std::abs(nx - xt) + std::abs(ny - yt);
+                if (dNew < bestNewDist) bestNewDist = dNew;
             }
-
-            // 计算“新位置 current.emptyPos 到目标各索引”的最小距离
-            int bestNewDist = INT_MAX;
-            for (int tIdx : cand) {
-                int newX = current.emptyPos / width;
-                int newY = current.emptyPos % width;
-                int xt = targetRow[tIdx];
-                int yt = targetCol[tIdx];
-                int d = std::abs(newX - xt) + std::abs(newY - yt);
-                if (d < bestNewDist) bestNewDist = d;
-            }
-
             newManhattan = current.manhattan - bestOldDist + bestNewDist;
         }
-        // ================================================
 
-        // 真正交换空格和被移动的块
+        // —— 2. 记录“交换前”受影响行/列的线性冲突惩罚之和 ——
+        int oldPart = 0;
+        if (dr == 0) {
+            // 水平移动：这时仅受影响 “行 row” 和 “列 col、新Col”
+            oldPart += calculateRowConflict(boardCopy, row);
+            oldPart += calculateColConflict(boardCopy, col);
+            oldPart += calculateColConflict(boardCopy, newCol);
+        } else {
+            // 垂直移动：仅受影响 “列 col” 和 “行 row、新Row”
+            oldPart += calculateColConflict(boardCopy, col);
+            oldPart += calculateRowConflict(boardCopy, row);
+            oldPart += calculateRowConflict(boardCopy, newRow);
+        }
+
+        // —— 3. 真正 swap 空格与 tile ——
         std::swap(boardCopy[current.emptyPos], boardCopy[newIndex]);
 
-        // 构造邻居状态
+        // —— 4. 计算“交换后”受影响行/列的线性冲突之和 ——
+        int newPart = 0;
+        if (dr == 0) {
+            newPart += calculateRowConflict(boardCopy, row);
+            newPart += calculateColConflict(boardCopy, col);
+            newPart += calculateColConflict(boardCopy, newCol);
+        } else {
+            newPart += calculateColConflict(boardCopy, col);
+            newPart += calculateRowConflict(boardCopy, row);
+            newPart += calculateRowConflict(boardCopy, newRow);
+        }
+        int newLinear = current.linearConflict - oldPart + newPart;
+
+        // —— 5. 构造邻居 State ——
         State neighbor;
-        neighbor.board = boardCopy;
-        neighbor.emptyPos = newIndex;
-        neighbor.g = current.g + 1;
-        neighbor.manhattan = newManhattan;
-
-        // —— 全盘线性冲突（保持原样） ——
-        int linear = calculateLinearConflict(boardCopy);
-        neighbor.h = newManhattan + linear;
-
-        neighbor.code = hashBoard(boardCopy);
-        neighbor.path = current.path;
-        neighbor.path.append({newRow, newCol});
+        neighbor.board          = boardCopy;
+        neighbor.emptyPos       = newIndex;
+        neighbor.g              = current.g + 1;
+        neighbor.manhattan      = newManhattan;
+        neighbor.linearConflict = newLinear;
+        neighbor.h              = newManhattan + newLinear;
+        neighbor.code           = hashBoard(boardCopy);
+        neighbor.path           = current.path;
+        neighbor.path.append({ newRow, newCol });
 
         neighbors.append(neighbor);
 
-        // 恢复原状态
+        // —— 6. 恢复原来盘面 ——
         std::swap(boardCopy[current.emptyPos], boardCopy[newIndex]);
     }
 
     return neighbors;
 }
-
-
-// QVector<AI::State> AI::generateNeighbors(const State& current) {
-//     QVector<State> neighbors;
-//     int row = current.emptyPos / width;
-//     int col = current.emptyPos % width;
-//     const QVector<QPair<int, int>> directions = {{-1,0},{1,0},{0,-1},{0,1}};
-
-//     QVector<QString> boardCopy = current.board;  // 只拷贝一次
-
-//     for (const auto& [dr, dc] : directions) {
-//         int newRow = row + dr;
-//         int newCol = col + dc;
-//         if (newRow < 0 || newRow >= targetBoard.size()/width || newCol < 0 || newCol >= width) continue;
-
-//         int newIndex = toIndex(newRow, newCol);
-
-//         std::swap(boardCopy[current.emptyPos], boardCopy[newIndex]); // 交换空格和目标块
-
-//         State neighbor;
-//         neighbor.board = boardCopy;  // 拷贝成本大大减少
-//         neighbor.emptyPos = newIndex;
-//         neighbor.g = current.g + 1;
-//         neighbor.h = heuristic(boardCopy);
-//         neighbor.path = current.path;
-//         neighbor.path.append({newRow, newCol});
-//         neighbor.code = hashBoard(boardCopy);
-
-//         neighbors.append(neighbor);
-
-//         std::swap(boardCopy[current.emptyPos], boardCopy[newIndex]); // 恢复原状态
-//     }
-//     return neighbors;
-// }
-
 void AI::startSolving() {
     qDebug() << "start";
     qDebug() << targetBoard;
@@ -720,47 +719,57 @@ void AI::startSolving() {
     while (!openPQ.empty()) openPQ.pop();
 
     State start;
-    start.board = logic->getBoard();
+    start.board    = logic->getBoard();
     start.emptyPos = start.board.indexOf("");
-    start.g = 0;
+    start.g        = 0;
 
-    // —— 1. 全盘计算曼哈顿之和 ——
+    // —— 全盘计算曼哈顿距离之和 ——
     int size = start.board.size();
     int manhSum = 0;
+    QVector<bool> used(size, false);
     for (int i = 0; i < size; ++i) {
         const QString& val = start.board[i];
         if (val.isEmpty()) continue;
-        // 取出该 tile 在目标中的所有索引，选最近的一个
-        QList<int> cand = targetMap.values(val);
+        QList<int> cands = targetMap.values(val);
         int bestDist = INT_MAX;
-        for (int tIdx : cand) {
+        int bestIdx  = -1;
+        for (int tIdx : cands) {
+            if (used[tIdx]) continue;
             int xi = i / width, yi = i % width;
             int xt = targetRow[tIdx], yt = targetCol[tIdx];
             int d = std::abs(xi - xt) + std::abs(yi - yt);
-            if (d < bestDist) bestDist = d;
+            if (d < bestDist) {
+                bestDist = d;
+                bestIdx  = tIdx;
+            }
         }
-        if (bestDist < INT_MAX) manhSum += bestDist;
+        if (bestIdx >= 0) {
+            used[bestIdx] = true;
+            manhSum += bestDist;
+        }
     }
     start.manhattan = manhSum;
 
-    // —— 2. 全盘计算线性冲突 ——
-    int initialLinear = calculateLinearConflict(start.board);
+    // —— 全盘计算线性冲突惩罚之和 ——
+    int totalLin = 0;
+    int height = size / width;
+    for (int r = 0; r < height; ++r) {
+        totalLin += calculateRowConflict(start.board, r);
+    }
+    for (int c = 0; c < width; ++c) {
+        totalLin += calculateColConflict(start.board, c);
+    }
+    start.linearConflict = totalLin;
 
-    // —— 3. 合成启发式 h = manhattan + linearConflict ——
-    start.h = start.manhattan + initialLinear;
-
-    // —— 4. 计算并记录哈希 ——
+    // —— 合成向量 h, 计算哈希, 推入 openPQ/openG ——
+    start.h    = start.manhattan + start.linearConflict;
     start.code = hashBoard(start.board);
-
-    // 推入 openPQ，记录 openG
     openPQ.push(start);
     openG[start.code] = 0;
-
     // … 之后的循环不变，只是 generateNeighbors 里会用增量曼哈顿 …
     while (!openPQ.empty() && !isExit) {
         State curr = openPQ.top();
         openPQ.pop();
-
         if (closedG.contains(curr.code)) continue;
         if (openG.contains(curr.code) && openG[curr.code] < curr.g) continue;
 

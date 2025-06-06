@@ -54,7 +54,7 @@ private:
         int h = 0;                           // 启发函数
         int emptyPos = -1;                   // 空格位置
         QVector<QPair<int, int>> path;       // 移动轨迹
-        quint64 code = 0;                    // 状态哈希值
+        quint64 code = 0;                    // 状态哈希值4
         int manhattan = 0;
         int linearConflict = 0;
 
@@ -88,6 +88,11 @@ private:
     void startSolving();                            // 启动 A*
     void startAnimation();                          // 启动动画播放
     void solveStep();                               // 一步动画（定时器）
+
+    int calculateRowConflict(const QVector<QString>& board, int row);
+    int calculateColConflict(const QVector<QString>& board, int row);
+
+
 
     int heuristic(const QVector<QString>& board);   // 启发函数
     int calculateLinearConflict(const QVector<QString>& board);
