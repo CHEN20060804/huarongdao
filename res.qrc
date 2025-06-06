@@ -32,5 +32,7 @@
         <file>res/tap.wav</file>
         <file>res/niubi.wav</file>
         <file>res/win.wav</file>
+        <file>res/bailu.mp3</file>
+        <file>res/weishuang.mp3</file>
     </qresource>
 </RCC>

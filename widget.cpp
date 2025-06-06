@@ -19,12 +19,12 @@
 Widget::Widget(QWidget *parent)
     :QWidget(parent),
     ui(new Ui::Widget),
+    music(new QMediaPlayer(this)),
+    audioOutput(new QAudioOutput(this)),
     setting(nullptr),
     creating(nullptr),
     loading(nullptr),
-    deleting(nullptr),
-    music(new QMediaPlayer(this)),
-    audioOutput(new QAudioOutput(this))
+    deleting(nullptr)
 {
     ui->setupUi(this);
 

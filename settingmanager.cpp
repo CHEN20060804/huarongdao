@@ -22,7 +22,7 @@ void SettingManager::loadSettings()
     QSettings settings("SCUT", "huarongdao");
     bgm = settings.value("bgm", "wu").toString();
     bgph = settings.value("bgph", "bk7").toString();
-    bgmVol = settings.value("bgmVol", 15).toInt();
+    bgmVol = settings.value("bgmVol", 20).toInt();
     soundVol = settings.value("soundVol", 50).toInt();
 }
 

@@ -2,16 +2,12 @@
 #define GAMEPAGEWITHAI_H
 
 #include <QWidget>
-#include "slidingsidebar.h"
-#include "tilebutton.h"
-#include "gamelogicone.h"
 #include "leveldata.h"
-#include "gamesessiondata.h"
-#include <memory>
 #include <QTextBrowser>
 #include <QVector>
 #include <QSet>
 #include <QPointer>
+#include <functional>
 #include <QTimer>
 #include <QPair>
 #include <queue>
@@ -29,47 +25,82 @@ class Player : public Man {
     friend class GamePageWithAI;
 public:
     explicit Player(QObject* parent = nullptr) : Man(parent) {}
-
+signals:
+    void playerMoved();
 private:
     void initBoard(const Level& level, QWidget* parentWidget) override;
     void tryMove(int i, int j) override;
 };
+
 class AI : public Man {
     Q_OBJECT
     friend class GamePageWithAI;
 
 public:
-    explicit AI(QObject* parent = nullptr) : Man(parent) {}
+    explicit AI(QObject* parent = nullptr);
+    ~AI();
+
+signals:
+    void solveReady(); // 当 A* 求解完成时发出信号
 
 private:
-    // override
+    // 初始化棋盘，读取关卡和目标状态
     void initBoard(const Level& level, QWidget* parentWidget) override;
-    void tryMove(int i, int j) override;
 
-    // --- 数据成员 ---
-    int width;                                       // 棋盘宽度
-    QVector<QString> targetBoard;                    // 目标状态一维数组
-    QTimer timer;                                    // 定时器控制动画速度
-
+    // 核心状态结构体
     struct State {
-        QVector<QString> board;                      // 当前局面
-        int g;                                       // 已走步数
-        int h;                                       // 启发值
-        QVector<QPair<int, int>> path;              // 移动路径
+        QVector<QString> board;
+        int g = 0;                           // 已走步数
+        int h = 0;                           // 启发函数
+        int emptyPos = -1;                   // 空格位置
+        QVector<QPair<int, int>> path;       // 移动轨迹
+        quint64 code = 0;                    // 状态哈希值
+        int manhattan = 0;
+        int linearConflict = 0;
+
+
+        bool operator>(const State& other) const {
+            return (g + h) > (other.g + other.h);
+        }
     };
 
-    QSet<QVector<QString>> visited;                 // 当前 DFS 路径中的判重（可用于剪枝）
+    // 核心数据
+    int width = 0;
+    QVector<QString> targetBoard;                   // 目标状态
+    QVector<QPair<int, int>> solutionPath;          // 求解路径
+    QMultiHash<QString,int> targetMap;
+    QVector<int> targetRow;            // 索引 → 目标行
+    QVector<int> targetCol;            // 索引 → 目标列
 
-    int threshold;                                   // 当前 f(n) 阈值
-    bool solved = false;                             // 是否已找到解
-    QVector<QPair<int, int>> solutionPath;           // 最终解路径（用于动画播放）
 
-    // --- 成员函数 ---
-    int heuristic(const QVector<QString>& board);    // 启发函数 h(n)
-    int dfs(State& state, int bound);                // 递归搜索函数，返回新阈值或成功标志
-    void startSolving();                             // 启动 IDA* 搜索流程
-    void solveStep();                                // 用 timer 动画播放 solutionPath
-    QVector<State> generateNeighbors(const State& s);// 生成邻居状态
+
+    bool solved = false;
+    bool isExit = false;
+
+    QTimer* timer;                                  // 控制动画
+
+    // A* 用到的容器
+    QHash<quint64, int> openG;                      // 状态哈希 -> 最小 g 值
+    QHash<quint64, int> closedG;                    // 拓展过的状态
+    std::priority_queue<State, std::vector<State>, std::greater<State>> openPQ;
+
+    // 函数
+    void startSolving();                            // 启动 A*
+    void startAnimation();                          // 启动动画播放
+    void solveStep();                               // 一步动画（定时器）
+
+    int heuristic(const QVector<QString>& board);   // 启发函数
+    int calculateLinearConflict(const QVector<QString>& board);
+    QVector<State> generateNeighbors(const State& current); // 生成可移动邻居
+    quint64 hashBoard(const QVector<QString>& board) const; // 哈希函数
+
+
+    // 覆盖虚函数（空实现）
+    void tryMove(int i, int j) override {}
+
+    // 工具
+    int toIndex(int row, int col) const { return row * width + col; }
+    QPair<int, int> toCoord(int idx) const { return { idx / width, idx % width }; }
 };
 
 class GamePageWithAI : public QWidget
@@ -93,6 +124,10 @@ private:
     AI* ai;
     QWidget* playerWidget;
     QWidget* AIWidget;
+
+    bool aiReady = false;
+    bool playerMoved = false;
+
 
     void winEffect(Man* man);
     void updateUI(Man* man);

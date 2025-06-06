@@ -1,5 +1,6 @@
 #include "man.h"
 #include "slidingsidebar.h"
+#include "settingmanager.h"
 void Man::startRecord()
 {
     session = GameSessionData();

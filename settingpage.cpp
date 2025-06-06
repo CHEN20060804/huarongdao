@@ -55,7 +55,7 @@ SettingPage::SettingPage(QWidget *parent)
     ui->SOUNDslider->setRange(0, 100);
     ui->BGMslider->setRange(0, 100);
     ui->SOUNDslider->setValue(50);
-    ui->BGMslider->setValue(15);
+    ui->BGMslider->setValue(20);
 
     bgphMap = {
         { "霁蓝", "bk7" },
@@ -69,6 +69,8 @@ SettingPage::SettingPage(QWidget *parent)
         { "雨夜", "yuye" },
         { "春日", "chunri" },
         { "夏日", "xiari" },
+        {"白露", "bailu"},
+        {"为霜", "weishuang"}
     };
 
 
@@ -84,7 +86,7 @@ SettingPage::SettingPage(QWidget *parent)
         ui->comboBoxBGPH->addItem(name);
     }
 
-    QStringList orderedKeys = {"无", "春日", "夏日", "雨夜"};
+    QStringList orderedKeys = {"无", "春日", "夏日", "雨夜", "白露","为霜"};
     for (const QString& name : orderedKeys) {
         if (bgmMap.contains(name)) {
             ui->comboBoxBGM->addItem(name);

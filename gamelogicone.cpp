@@ -10,20 +10,13 @@ GameLogicOne::GameLogicOne(int cols, int rows, const QVector<QString>& initBoard
 }
 // 检查拼图是否可解
 bool GameLogicOne::isSolvable(const QVector<int>& order) const {
-
     int inv = 0;
     for (int i = 0; i < order.size() - 1; ++i) {
         for (int j = i + 1; j < order.size() - 1; ++j) {
             if (order[i] > order[j]) ++inv;
         }
     }
-
-    if (cols % 2 == 1) {
-        return inv % 2 == 0;
-    } else {
-        // 空格在最后，行数从底数起为 1
-        return (inv + 1) % 2 == 0;
-    }
+    return (inv % 2 == 0);
 }
 
 
@@ -80,6 +73,10 @@ int GameLogicOne::getRows() const
 QVector<QString> GameLogicOne::getBoard() const
 {
     return board;
+}
+QVector<QString> GameLogicOne::getTarget() const
+{
+    return target;
 }
 
 double GameLogicOne::computeDifficulty() const
