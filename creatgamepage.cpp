@@ -228,7 +228,7 @@ bool CreatGamePage::saveCustomGame()
         PopTips::Bad(this, ui->textEdit, "棋盘保存失败");
         return false;
     }
-    PopTips::Good(this, ui->textEdit, "棋盘保存成功");
+    PopTips::Good(this, ui->textEdit, "棋盘创建成功");
     return true;
 }
 

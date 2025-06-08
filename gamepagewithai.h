@@ -12,6 +12,7 @@
 #include <QPair>
 #include <queue>
 #include "man.h"
+#include "difficultylabel.h"
 
 class GamePageWithAI;
 
@@ -38,10 +39,14 @@ class AI : public Man {
 
 public:
     explicit AI(QObject* parent = nullptr);
+    void detachHeavyData();
+    void RELEASE();
     ~AI();
 
 signals:
     void solveReady(); // 当 A* 求解完成时发出信号
+    void move();
+    void thought();
 
 private:
     // 初始化棋盘，读取关卡和目标状态
@@ -51,7 +56,7 @@ private:
     struct State {
         QVector<QString> board;
         int g = 0;                           // 已走步数
-        int h = 0;                           // 启发函数
+        int h = 0;
         int emptyPos = -1;                   // 空格位置
         QVector<QPair<int, int>> path;       // 移动轨迹
         quint64 code = 0;                    // 状态哈希值4
@@ -60,7 +65,7 @@ private:
 
 
         bool operator>(const State& other) const {
-            return (g + h) > (other.g + other.h);
+            return (g + h*1.5) > (other.g + other.h*1.5);//给h呈上权重
         }
     };
 
@@ -77,7 +82,7 @@ private:
     bool solved = false;
     bool isExit = false;
 
-    QTimer* timer;                                  // 控制动画
+ //   QTimer* timer;                                  // 控制动画
 
     // A* 用到的容器
     QHash<quint64, int> openG;                      // 状态哈希 -> 最小 g 值
@@ -92,7 +97,8 @@ private:
     int calculateRowConflict(const QVector<QString>& board, int row);
     int calculateColConflict(const QVector<QString>& board, int row);
 
-
+    void scheduleNextStep();
+    int intervalTime;
 
     int heuristic(const QVector<QString>& board);   // 启发函数
     int calculateLinearConflict(const QVector<QString>& board);
@@ -118,6 +124,7 @@ public:
     ~GamePageWithAI();
 signals:
     void mainBtnClicked(int i);
+    void AIcanMove();
 private:
 
     Ui::GamePageWithAI *ui;
@@ -129,10 +136,12 @@ private:
     AI* ai;
     QWidget* playerWidget;
     QWidget* AIWidget;
+    DifficultyLabel* difficultyBar;
+    double hardness;
 
     bool aiReady = false;
-    bool playerMoved = false;
-
+    bool allowAImove = false;
+    QElapsedTimer timer;
 
     void winEffect(Man* man);
     void updateUI(Man* man);

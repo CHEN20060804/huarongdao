@@ -33,7 +33,7 @@ Widget::Widget(QWidget *parent)
     QApplication::processEvents();
     ui->stackedWidget->setCurrentIndex(0); // 切回主页
 
-    setWindowTitle("活字华容道");//设置标题
+    setWindowTitle("律格空间");//设置标题
     setFixedSize(850, 600);
     setMouseTracking(true);
 

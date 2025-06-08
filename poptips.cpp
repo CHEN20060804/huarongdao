@@ -3,7 +3,7 @@
 
 QPointer<QLabel> PopTips::currentTip = nullptr;
 
-void PopTips::showTip(QWidget* parent, QWidget* anchorWidget, const QString& message, const QString& borderColor)
+void PopTips::showTip(QWidget* parent, QWidget* anchorWidget, const QString& message, const QString& borderColor, bool isTemp)
 {
     // 如果前一个 Tip 存在，手动销毁
     if (currentTip) {
@@ -23,24 +23,27 @@ void PopTips::showTip(QWidget* parent, QWidget* anchorWidget, const QString& mes
 
     currentTip = tip;
 
-    // 定时自动销毁
-    QTimer::singleShot(3000, tip, [tip]() {
-        tip->deleteLater();
-        if (PopTips::currentTip == tip)
-            PopTips::currentTip = nullptr;
-    });
+    if(isTemp)
+    {
+        // 定时自动销毁
+        QTimer::singleShot(3000, tip, [tip]() {
+            tip->deleteLater();
+            if (PopTips::currentTip == tip)
+                PopTips::currentTip = nullptr;
+        });
+    }
 }
 
-void PopTips::Good(QWidget* parent, QWidget* anchorWidget, const QString& message)
+void PopTips::Good(QWidget* parent, QWidget* anchorWidget, const QString& message, bool isTemp)
 {
-    showTip(parent, anchorWidget, message, "#35DE27");
+    showTip(parent, anchorWidget, message, "#35DE27",isTemp);
 }
 
-void PopTips::Bad(QWidget* parent, QWidget* anchorWidget, const QString& message)
+void PopTips::Bad(QWidget* parent, QWidget* anchorWidget, const QString& message, bool isTemp)
 {
-    showTip(parent, anchorWidget, message, "#ffa07a");
+    showTip(parent, anchorWidget, message, "#ffa07a", isTemp);
 }
-void PopTips::GoodCenter(QWidget* parent, const QString& message)
+void PopTips::GoodCenter(QWidget* parent, const QString& message , bool isTemp)
 {
     if (currentTip) {
         currentTip->deleteLater();
@@ -62,10 +65,13 @@ void PopTips::GoodCenter(QWidget* parent, const QString& message)
     tip->show();
     currentTip = tip;
 
-    // 定时销毁
-    QTimer::singleShot(4000, tip, [tip]() {
-        tip->deleteLater();
-        if (PopTips::currentTip == tip)
-            PopTips::currentTip = nullptr;
-    });
+    if(isTemp)
+    {
+        // 定时销毁
+        QTimer::singleShot(4000, tip, [tip]() {
+            tip->deleteLater();
+            if (PopTips::currentTip == tip)
+                PopTips::currentTip = nullptr;
+        });
+    }
 }

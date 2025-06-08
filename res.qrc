@@ -1,23 +1,9 @@
 <RCC>
     <qresource prefix="/video">
-        <file>res/bk1.jpg</file>
         <file>res/exit.png</file>
         <file>res/setting.png</file>
         <file>res/back.png</file>
-        <file>res/bk2.jpg</file>
-        <file>res/bk3.jpg</file>
-        <file>res/bk4.jpg</file>
-        <file>res/hrd1.jpg</file>
-        <file>res/hrd2.jpg</file>
-        <file>res/bk5.jpg</file>
-        <file>res/bk6.jpg</file>
         <file>res/bk7.jpg</file>
-        <file>res/bk8.jpg</file>
-        <file>res/hrd3.jpg</file>
-        <file>res/bk9.jpg</file>
-        <file>res/bk10.jpg</file>
-        <file>res/bk11.jpg</file>
-        <file>res/creatPage.jpg</file>
         <file>res/close.png</file>
         <file>res/delete.png</file>
         <file>res/loading.png</file>

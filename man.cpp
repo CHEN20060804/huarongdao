@@ -3,6 +3,7 @@
 #include "settingmanager.h"
 void Man::startRecord()
 {
+    isStartRecord = true;
     session = GameSessionData();
     session.start();
     if(!gameTimer)
@@ -11,7 +12,7 @@ void Man::startRecord()
         connect(gameTimer, &QTimer::timeout, this, &Man::updateTimeDisplay);
     }
     gameTimer->start(100);
-    updateStepdisplay();
+   // updateStepdisplay();
 }
 
 

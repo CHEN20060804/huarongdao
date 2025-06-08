@@ -203,6 +203,10 @@ void GamePageTwo::loadLevel(const Level& level) {
     playerL->initRecordSlidingSidebar(QPoint(0, 90), SlidingSidebar::SlideLeft, this);
     playerR->initRecordSlidingSidebar(QPoint(width() - 200, 90), SlidingSidebar::SlideRight, this);
 
+    connect(playerL, &Player2::beginRecord, playerR, &Player2::startRecord);
+    connect(playerR, &Player2::beginRecord, playerL, &Player2::startRecord);
+
+
     // 绑定胜利信号
     connect(playerL, &Player2::over, this, &GamePageTwo::winEffect);
     connect(playerR, &Player2::over, this, &GamePageTwo::winEffect);
@@ -241,6 +245,7 @@ bool GamePageTwo::eventFilter(QObject* obj, QEvent* event) {
 void Player2::initBoard(const Level& level, QWidget* parent) {
     int cols = level.getw();
     int rows = level.geth();
+    isStartRecord = false;
 
     logic = std::make_unique<GameLogicOne>(cols, rows, level.getElement());
 
@@ -294,7 +299,12 @@ void Player2::tryMove(int i, int j) {
     if (!logic->tryMove(i, j)) return;
     QVector<QString> newBoard = logic->getBoard();
     updateStepdisplay();
-    if(session.getSteps() == 1) startRecord();
+    if(session.getSteps() == 1&&!isStartRecord)
+    {
+        startRecord();
+        updateStepdisplay();
+        emit beginRecord();
+    }
     int fromIndex = -1, toIndex = -1;
     for (int k = 0; k < oldBoard.size(); ++k) {
         if (!oldBoard[k].isEmpty() && newBoard[k].isEmpty()) fromIndex = k;

@@ -7,6 +7,7 @@
 #include <QtConcurrent>
 #include "settingmanager.h"
 #include <QtAlgorithms>
+#include "poptips.h"
 
 GamePageWithAI::GamePageWithAI(QWidget *parent)
     : QWidget(parent)
@@ -15,6 +16,7 @@ GamePageWithAI::GamePageWithAI(QWidget *parent)
     , ai(nullptr)
     ,playerWidget(nullptr)
     ,AIWidget(nullptr)
+    ,difficultyBar(nullptr)
 {
     ui->setupUi(this);
     setFixedSize(850, 600);
@@ -23,12 +25,13 @@ GamePageWithAI::GamePageWithAI(QWidget *parent)
     backBtn->setIcon(QIcon(":/video/res/back.png"));
     backBtn->setIconSize(QSize(30, 30));
     connect(backBtn, &QPushButton::clicked, [=]{
-        //resetRecord();
-        ai->timer->stop();
+        ai->resetRecord();
+        player->resetRecord();
+        ai->recordBar->setParent(playerWidget);
+        player->recordBar->setParent(AIWidget);
         ai->isExit = true;
         emit mainBtnClicked(2);
-        //delete ai;
-        ai->deleteLater();
+        ai->RELEASE();
         ai = nullptr;
     });
 
@@ -38,7 +41,10 @@ GamePageWithAI::GamePageWithAI(QWidget *parent)
     reloadBtn->setIconSize(QSize(30, 30));
 
     connect(reloadBtn, &QPushButton::clicked, [=](){
-        ai->timer->stop();
+        ai->resetRecord();
+        player->resetRecord();
+        ai->recordBar->setParent(playerWidget);
+        player->recordBar->setParent(AIWidget);
         ai->isExit = true;
         loadLevel(level);
     });
@@ -73,8 +79,13 @@ void Player::tryMove(int i, int j) {
     QVector<QString> oldBoard = logic->getBoard(); // 保存旧状态
 
     if (logic->tryMove(i, j)) {
-        //updateStepdisplay();
-        //if(currentSteps=="1")startRecord(level);
+        updateStepdisplay();
+        if(session.getSteps() == 1&&!isStartRecord)
+        {
+            startRecord();
+            updateStepdisplay();
+            emit beginRecord();
+        }
         QVector<QString> newBoard = logic->getBoard();
 
         emit playerMoved();
@@ -115,60 +126,12 @@ void Player::tryMove(int i, int j) {
         }
 
         if (logic->isSolved()) {
-              //stopRecord();
+            stopRecord();
             winsound->play();
             emit over(this);
         }
     }
 }
-
-// void AI::tryMove(int i, int j) {
-//     QVector<QString> oldBoard = logic->getBoard(); // 保存旧状态
-
-//     if (logic->tryMove(i, j)) {
-//         //updateStepdisplay();
-//         //if(currentSteps=="1")startRecord(level);
-//         QVector<QString> newBoard = logic->getBoard();
-
-//         // 查找移动的方块
-//         int fromIndex = -1, toIndex = -1;
-//         for (int i = 0; i < oldBoard.size(); ++i) {
-//             if (!oldBoard[i].isEmpty() && newBoard[i].isEmpty())
-//                 fromIndex = i;
-//             if (oldBoard[i].isEmpty() && !newBoard[i].isEmpty())
-//                 toIndex = i;
-//         }
-
-//         if (fromIndex != -1 && toIndex != -1) {
-//             TileButton* movedBtn = tiles[fromIndex];
-
-//             // 计算目标位置
-//             int toRow = toIndex / logic->getCols();
-//             int toCol = toIndex % logic->getCols();
-//             QPoint targetPos(
-//                 toCol * buttonWidth ,
-//                 toRow * buttonHeight
-//                 );
-
-//             // 创建动画
-//             QPropertyAnimation* anim = new QPropertyAnimation(movedBtn, "pos");
-//             anim->setDuration(200);
-//             anim->setStartValue(movedBtn->pos());
-//             anim->setEndValue(targetPos);
-//             anim->start(QAbstractAnimation::DeleteWhenStopped);
-
-//             // 更新按钮位置信息
-//             movedBtn->setRowCol(toRow, toCol);
-//             std::swap(tiles[fromIndex], tiles[toIndex]);
-//         }
-
-//         if (logic->isSolved()) {
-//             //stopRecord();
-//             emit over(this);
-
-//         }
-//     }
-// }
 
 void GamePageWithAI::loadLevel(const Level& level) {
     this->level = level;
@@ -194,10 +157,8 @@ void GamePageWithAI::loadLevel(const Level& level) {
 
     if (ai) {
         qDebug() <<"n";
-        delete ai;
-        //ai->deleteLater();
+        ai->RELEASE();
         qDebug() <<"m";
-
         ai = nullptr;
     }
 
@@ -239,39 +200,42 @@ void GamePageWithAI::loadLevel(const Level& level) {
     AIWidget->move(x, 200);
     qDebug() <<"2";
     aiReady = false;
-    playerMoved = false;
 
     QtConcurrent::run([&,this]() {
         ai->startSolving();
     });
 
-    connect(player, &Player::playerMoved, player, [&,this]() {
-
-        playerMoved = true;
-        if (aiReady)
-        {
-            qDebug() <<"start1";
-
+    connect(ai, &AI::solveReady, ai, [&, this]() {
+        qint64 remaining = 2000 - timer.elapsed();
+        if (remaining <= 0) {
             ai->startAnimation();
-
-            qDebug() <<"start3";
-
+        } else {
+            QTimer::singleShot(remaining, ai, [=]() {
+                ai->startAnimation();
+            });
         }
     }, Qt::SingleShotConnection);
-
-    connect(ai, &AI::solveReady, ai, [&,this]() {
-
-        aiReady = true;
-        if (playerMoved)
-        {
-            qDebug() <<"start2";
-
-            ai->startAnimation();
-        }
-    }, Qt::SingleShotConnection);
-
 
     qDebug() <<"3";
+
+    player->initRecordSlidingSidebar(QPoint(0, 90), SlidingSidebar::SlideLeft, this);
+    ai->initRecordSlidingSidebar(QPoint(width() - 200, 90), SlidingSidebar::SlideRight, this);
+    qDebug() <<"4";
+
+    connect(ai, &AI::beginRecord, player, &Player::startRecord);
+    connect(player, &Player::beginRecord, ai, &AI::startRecord);
+
+    hardness = player->logic->computeDifficulty();
+    if(difficultyBar)
+    {
+        difficultyBar->deleteLater();
+        difficultyBar = nullptr;
+    }
+    difficultyBar = new DifficultyLabel(this, width()-150, 30);
+    difficultyBar->setDifficulty(hardness);
+    difficultyBar->show();
+
+    qDebug() <<"5";
 
     // 绑定胜利信号
     connect(player, &Player::over, this, &GamePageWithAI::winEffect);
@@ -283,8 +247,20 @@ void GamePageWithAI::loadLevel(const Level& level) {
     updateUI(ai);
     qDebug() <<"7";
 
+    PopTips::Bad(this, AIWidget,  "正在思考...", false);
+
+    connect(ai, &AI::move, [=](){
+        PopTips::Good(this, AIWidget,  "正在移动...", false);
+    });
+
+    connect(ai, &AI::thought, [=](){
+        PopTips::Bad(this, AIWidget,  "正在思考...", false);
+    });
+
     playerWidget->show();
     AIWidget->show();
+
+    timer.start();
 }
 
 
@@ -431,7 +407,11 @@ void GamePageWithAI::winEffect(Man* man)
     }
 
     aiReady = false;
-    playerMoved = false;
+    allowAImove = false;
+
+    QTimer::singleShot(0, this, [this]() {
+         PopTips::Good(this, AIWidget,  "已完成求解", false);
+    });
 
     auto* glowEffect = new QGraphicsDropShadowEffect(this);
     glowEffect->setColor(QColor(255, 215, 0)); // 金黄色
@@ -488,17 +468,28 @@ void GamePageWithAI::createCustomTargetDisplay(QWidget* parent, const QStringLis
     targetText->show();
 }
 
-AI::AI(QObject* parent) : Man(parent), timer(new QTimer(this)) {}
+AI::AI(QObject* parent) : Man(parent){}
 
 AI::~AI() {
-    qDebug() << "[AI] 析构中";
-    if (timer->isActive()) {
-        qDebug() << "[AI] Timer 活跃，尝试 stop";
-        timer->stop();
-    }
-    qDebug() << "[AI] 尝试 disconnect timer";
-    timer->disconnect();
     qDebug() << "[AI] 析构结束";
+}
+
+void AI::detachHeavyData()
+{
+    QtConcurrent::run([
+                          a = std::move(closedG),//打包大数据
+                          b = std::move(openG),
+                          c = std::move(openPQ)
+    ] {
+        //优雅后台析构
+    });
+}
+
+
+void AI::RELEASE()
+{
+    detachHeavyData();
+    this->deleteLater();
 }
 
 int AI::calculateRowConflict(const QVector<QString>& board, int row) {
@@ -592,26 +583,6 @@ int AI::calculateLinearConflict(const QVector<QString>& board) {
     }
     return total;
 }
-
-// int AI::heuristic(const QVector<QString>& board) {
-//     int size = board.size();
-//     int manhattanSum = 0;
-
-//     // 1. 计算全盘曼哈顿距离之和
-//     for (int i = 0; i < size; ++i) {
-//         const QString& val = board[i];
-//         if (val.isEmpty()) continue;  // 空格不算
-//         int tIdx = targetMap.value(val);       // 目标索引
-//         int xi = i / width, yi = i % width;     // 当前坐标
-//         int xt = targetRow[tIdx], yt = targetCol[tIdx]; // 目标坐标
-//         manhattanSum += std::abs(xi - xt) + std::abs(yi - yt);
-//     }
-
-//     // 2. 计算线性冲突惩罚
-//     int linear = calculateLinearConflict(board);
-
-//     return manhattanSum + linear;
-// }
 
 quint64 AI::hashBoard(const QVector<QString>& board) const {
     quint64 hash = 0xcbf29ce484222325ULL; // 64位 FNV 初始值
@@ -713,6 +684,7 @@ QVector<AI::State> AI::generateNeighbors(const State& current) {
 }
 void AI::startSolving() {
     qDebug() << "start";
+    emit thought();
     qDebug() << targetBoard;
     openG.clear();
     closedG.clear();
@@ -723,7 +695,6 @@ void AI::startSolving() {
     start.emptyPos = start.board.indexOf("");
     start.g        = 0;
 
-    // —— 全盘计算曼哈顿距离之和 ——
     int size = start.board.size();
     int manhSum = 0;
     QVector<bool> used(size, false);
@@ -750,7 +721,6 @@ void AI::startSolving() {
     }
     start.manhattan = manhSum;
 
-    // —— 全盘计算线性冲突惩罚之和 ——
     int totalLin = 0;
     int height = size / width;
     for (int r = 0; r < height; ++r) {
@@ -761,12 +731,10 @@ void AI::startSolving() {
     }
     start.linearConflict = totalLin;
 
-    // —— 合成向量 h, 计算哈希, 推入 openPQ/openG ——
     start.h    = start.manhattan + start.linearConflict;
     start.code = hashBoard(start.board);
     openPQ.push(start);
     openG[start.code] = 0;
-    // … 之后的循环不变，只是 generateNeighbors 里会用增量曼哈顿 …
     while (!openPQ.empty() && !isExit) {
         State curr = openPQ.top();
         openPQ.pop();
@@ -795,70 +763,13 @@ void AI::startSolving() {
     qDebug() << "[A*] 未找到解";
     solved = false;
 }
-
-// void AI::startSolving() {
-//     qDebug() << "start";
-//     qDebug() << targetBoard;
-//     openG.clear();
-//     closedG.clear();
-//     while (!openPQ.empty()) openPQ.pop();
-
-//     State start;
-//     start.board = logic->getBoard();
-//     start.emptyPos = start.board.indexOf("");
-//     start.g = 0;
-//     start.h = heuristic(start.board);
-//     start.path = {};
-//     start.code = hashBoard(start.board);
-
-//     openPQ.push(start);
-//     openG[start.code] = 0;
-
-//     while (!openPQ.empty()&&!isExit) {
-//         State curr = openPQ.top();
-//         openPQ.pop();
-//         // 如果状态已在 closed 集合，并且 board 真实重复，跳过
-//         if (closedG.contains(curr.code)) continue;
-
-//         // 如果 openG 有更优路径，跳过
-//         if (openG.contains(curr.code) && openG[curr.code] < curr.g) continue;
-
-
-//         if (curr.board == targetBoard) {
-//             solutionPath = curr.path;
-//             solved = true;
-//             emit solveReady();
-//             qDebug() << "[A*] 目标已找到";
-//             return;
-//         }
-
-//         closedG[curr.code] = curr.g;
-//         QVector<State> neighbors = generateNeighbors(curr);
-
-//         for (State& neighbor : neighbors) {
-//             if (closedG.contains(neighbor.code)) continue;
-//             int newG = neighbor.g;
-
-//             // 确保我们只扩展未扩展过且更优的路径
-//             if (openG.contains(neighbor.code) && openG[neighbor.code] <= newG) continue;
-
-//             openG[neighbor.code] = newG;
-//             openPQ.push(neighbor);
-//         }
-//     }
-
-//     qDebug() << "[A*] 未找到解";
-//     solved = false;
-
-// }
-
 // 动画播放解路径
 void AI::solveStep() {
     if (solutionPath.isEmpty()) {
-        timer->stop();
         qDebug() << "timer s";
         return;
     }
+
 
     auto [blankRow, blankCol] = solutionPath.takeFirst();
 
@@ -876,8 +787,15 @@ void AI::solveStep() {
     int tileCol = emptyCol + deltaCol;
 
     QVector<QString> oldBoard = logic->getBoard();
-    qDebug() << 1;
     if (logic->tryMove(tileRow, tileCol)) {
+        if(!logic->isSolved())scheduleNextStep();  // 调用下一次
+        updateStepdisplay();
+        if(session.getSteps() == 1&&!isStartRecord)
+        {
+            startRecord();
+            updateStepdisplay();
+            emit beginRecord();
+        }
         QVector<QString> newBoard = logic->getBoard();
 
         int fromIndex = -1, toIndex = -1;
@@ -897,10 +815,11 @@ void AI::solveStep() {
 
             // 动画效果
             QPropertyAnimation* anim = new QPropertyAnimation(movedBtn, "pos");
-            anim->setDuration(200);
+            anim->setDuration(280);
             anim->setStartValue(movedBtn->pos());
             anim->setEndValue(targetPos);
             anim->start(QAbstractAnimation::DeleteWhenStopped);
+            emit move();
 
             // 更新按钮数组
             movedBtn->setRowCol(toRow, toCol);
@@ -908,62 +827,44 @@ void AI::solveStep() {
 
             QTimer::singleShot(160, this, [this]() {
                 movesound->play();
+                emit thought();
             });
         }
 
         // 判胜
         if (logic->isSolved()) {
+            stopRecord();
+            QTimer::singleShot(200, this, [this]() {
             winsound->play();
             emit over(this);
-            timer->stop(); // 防止后续误触
+            });
         }
     }
 }
 void AI::startAnimation() {
-    if (!timer->isActive()) {
-        qDebug() << "timer";
-        connect(timer, &QTimer::timeout, this, &AI::solveStep);
-        timer->start(300);
-    }
+    qDebug() << "timer started";
+    intervalTime = 0;
+    scheduleNextStep();  // 启动第一个定时器
 }
+
+void AI::scheduleNextStep() {
+    QTimer::singleShot(intervalTime, this, &AI::solveStep);
+
+    if(targetBoard.size() <= 9)
+        intervalTime = QRandomGenerator::global()->bounded(300, 1000);
+    else if(targetBoard.size() <= 12)
+        intervalTime = QRandomGenerator::global()->bounded(300, 1500);
+    else if(targetBoard.size() <= 16)
+        intervalTime = QRandomGenerator::global()->bounded(500, 1800);
+    else
+        intervalTime = QRandomGenerator::global()->bounded(300, 1800);
+    //根据棋盘大小区分难度
+}
+
+
 GamePageWithAI::~GamePageWithAI() {
     delete ai;
     delete player;
     delete ui;
 }
-
-
-
-// void AI::tryMove(int i, int j) {
-//     qDebug() << "AI::tryMove got" << i << j;
-//     QVector<QString> oldBoard = logic->getBoard();
-//     if (!logic->tryMove(i, j)) return;
-
-//     QVector<QString> newBoard = logic->getBoard();
-//     int from = -1, to = -1;
-//     for (int k = 0; k < oldBoard.size(); ++k) {
-//         if (oldBoard[k].isEmpty() && !newBoard[k].isEmpty()) to = k;
-//         if (!oldBoard[k].isEmpty() && newBoard[k].isEmpty()) from = k;
-//     }
-
-//     if (from >= 0 && to >= 0) {
-//         TileButton* btn = tiles[from];
-//         btn->raise();
-//         int tr = to / logic->getCols(), tc = to % logic->getCols();
-//         QPoint endP(tc * buttonWidth, tr * buttonHeight);
-//         QPropertyAnimation* anim = new QPropertyAnimation(btn, "pos");
-//         anim->setDuration(200);
-//         anim->setStartValue(btn->pos());
-//         anim->setEndValue(endP);
-//         anim->start(QAbstractAnimation::DeleteWhenStopped);
-//         tiles.swapItemsAt(from, to);
-//         tiles[to]->setRowCol(tr, tc);
-//     }
-
-//     // 刷新棋盘标签
-//     for (int k = 0; k < tiles.size(); ++k) tiles[k]->setText(logic->getBoard()[k]);
-
-//     if (logic->isSolved()) emit over(this);
-// }
-
 

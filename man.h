@@ -25,6 +25,7 @@ protected:
     QTimer* gameTimer;
     QSoundEffect* movesound;
     QSoundEffect* winsound;
+    bool isStartRecord = false;
 
 
     explicit Man(QObject* parent = nullptr) : QObject(parent), logic(nullptr), recordBar(nullptr), gameTimer(nullptr),movesound(new QSoundEffect(this)), winsound(new QSoundEffect(this))
@@ -35,13 +36,13 @@ protected:
 
     virtual void initBoard(const Level& level, QWidget* parentWidget) = 0;
     virtual void tryMove(int i, int j) = 0;
-    virtual  void startRecord();
     virtual  void updateTimeDisplay();
     virtual  void updateStepdisplay();
     virtual  void resetRecord();
     virtual  void stopRecord();
     virtual  void initRecordSlidingSidebar(QPoint point, SlidingSidebar::SlideDirection direction,  QWidget* parent = nullptr);
-
+protected slots:
+    virtual  void startRecord();
 
 public:
     virtual QVector<TileButton*> getTiles();
@@ -49,6 +50,7 @@ public:
 
 signals:
     void over(Man* man);
+    void beginRecord();
 };
 
 

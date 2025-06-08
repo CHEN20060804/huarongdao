@@ -238,6 +238,11 @@ bool LoadGamePage::loadCustomGame(Level& level, Model& model)
     else if(ui->radioBtnAI->isChecked())
     {
         model = AI;
+        if( h*w >= 30 )
+        {
+            PopTips::Bad(this, listWidget, "此模式暂不支持5×6和6×6规模棋盘");
+            return false;
+        }
     }
     else
     {

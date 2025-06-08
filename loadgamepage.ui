@@ -49,7 +49,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>与AI对抗</string>
+    <string>人机对战</string>
    </property>
   </widget>
   <widget class="QRadioButton" name="radioBtnOne">

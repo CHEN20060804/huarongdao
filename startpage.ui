@@ -109,6 +109,19 @@
     <string>自定义模式</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>2</x>
+     <y>582</y>
+     <width>531</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Github URL : https://github.com/CHEN20060804/huarongdao.git</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

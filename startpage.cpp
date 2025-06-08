@@ -20,8 +20,8 @@ StartPage::StartPage(QWidget *parent)
 
     titleFont = QFont("华文行楷", 52, QFont::Normal);
     titleFont.setItalic(true);
-    titleText = "活字华容道";
-    titlePosition = QPoint(250, 150);
+    titleText = "律格空间";
+    titlePosition = QPoint(280, 150);
 
 
     int x1 =width() - exitBtn->width() - 50;
