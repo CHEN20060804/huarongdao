@@ -122,6 +122,19 @@
     <string>Github URL : https://github.com/CHEN20060804/huarongdao.git</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>810</x>
+     <y>582</y>
+     <width>41</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>v1.0.0</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

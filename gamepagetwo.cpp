@@ -459,8 +459,8 @@ void GamePageTwo::createCustomTargetDisplay(QWidget* parent, const QStringList& 
 
     // 设置简洁适配的半透明浅黄色背景
     QPalette palette = targetText->palette();
-    palette.setColor(QPalette::Base, QColor(241, 245, 202, 150)); // 浅黄色 (LightYellow)，透明度180
-    palette.setColor(QPalette::Text, QColor(0, 0, 0));             // 黑色文字
+    palette.setColor(QPalette::Base, QColor(241, 245, 202, 150));
+    palette.setColor(QPalette::Text, QColor(0, 0, 0));
     targetText->setPalette(palette);
 
     // 设置字体和样式
